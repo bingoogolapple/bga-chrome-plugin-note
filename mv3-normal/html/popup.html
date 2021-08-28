@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BGA Chrome Plugin</title>
+    <link rel="stylesheet" href="../style/popup.css">
+</head>
+
+<body>
+    <h1>Chrome 插件开发学习笔记</h1>
+    <div>用户名：<span id="username"></span></div>
+    <div>域名：<span id="domain"></span></div>
+    <button id="changePageColor">修改网页背景颜色</button>
+    <button id="changePluginColor">修改插件背景颜色</button>
+    <button id="showBadge">showBadge</button>
+    <button id="hideBadge">hideBadge</button>
+    <button id="sendNotification">发送系统通知</button>
+    <button id="getBackgroundPage">getBackgroundPage</button>
+    <button id="getViews">getViews</button>
+    <button id="openOptions">打开选项</button>
+    <button id="openBaidu">打开百度</button>
+    <button id="sendMessage">发送消息</button>
+    <div id="buttonDiv"></div>
+    <!-- 也可以通过 iframe 内嵌其他网站 -->
+    <iframe width="100%" height="100%" title="iframe" name="iframe" allow="clipboard-write *;"
+        src="http://www.bingoogolapple.cn"></iframe>
+
+    <script src="../js/popup.js"></script>
+</body>
+
+</html>
