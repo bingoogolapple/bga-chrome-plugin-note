@@ -56,8 +56,12 @@ module.exports = {
   appPath: resolveApp('.'),
   appBuild: resolveApp(buildPath),
   appPublic: resolveApp('public'),
+  /*
   appHtml: resolveApp('public/index.html'),
   appIndexJs: resolveModule(resolveApp, 'src/index'),
+  */
+  appHtml: resolveApp('src/views/newtab/newtab.html'),
+  appIndexJs: resolveModule(resolveApp, 'src/views/newtab/newtab'),
   appPackageJson: resolveApp('package.json'),
   appSrc: resolveApp('src'),
   appTsConfig: resolveApp('tsconfig.json'),
