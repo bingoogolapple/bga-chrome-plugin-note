@@ -7,6 +7,8 @@ Chrome 插件开发学习笔记
 - [官方文档](https://developer.chrome.com/docs/extensions/mv3/getstarted)
 - [chrome-extensions-samples](https://github.com/GoogleChrome/chrome-extensions-samples)
 - [中文文档](https://wizardforcel.gitbooks.io/chrome-doc/content/index.html)
+- [发布](https://developer.chrome.com/docs/webstore/publish/)
+- [参考文章1](https://github.com/0326/iBookmark/wiki)
 
 ## manifest.json
 
@@ -54,3 +56,7 @@ Chrome 插件开发学习笔记
 - 不允许在 html 中加载远程 js，需要下载到本地
 - 不允许使用内联 js
 - 可以结合 [crx](https://www.npmjs.com/package/crx) 打包
+
+## 账号
+
+- [注册地址](https://chrome.google.com/webstore/devconsole)
