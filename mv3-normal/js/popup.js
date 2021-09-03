@@ -6,15 +6,68 @@ window.onload = () => {
         })
 }
 
-function deleteCookie(cookie) {
+const getCookie = async (domain, name) => {
+    let cookies
+    try {
+        cookies = await chrome.cookies.getAll({ domain: domain, name: name })
+        console.log(cookies)
+    } catch (e) {
+        console.log(`从 ${domain} 获取 ${name} 失败`, e)
+        return null
+    }
+
+    if (cookies.length === 0) {
+        console.log(`${domain} 上不存在 ${name}`)
+        return null
+    }
+
+    console.log(`${domain} 上存在 ${name}`)
+    return cookies[0]
+}
+
+const deleteCookie = async (domain, name) => {
+    const cookie = await getCookie(domain, name)
+    if (!cookie) {
+        return
+    }
+
     const protocol = cookie.secure ? 'https:' : 'http:'
     const cookieUrl = `${protocol}//${cookie.domain}${cookie.path}`
+    try {
+        const deleteResult = await chrome.cookies.remove({
+            storeId: cookie.storeId,
+            name: cookie.name,
+            url: cookieUrl,
+        })
+        console.log(`从 ${domain} 中删除 ${name} 成功`, deleteResult)
+    } catch (e) {
+        console.log(`从 ${domain} 中删除 ${name} 失败`, e)
+    }
+}
 
-    return chrome.cookies.remove({
-        url: cookieUrl,
-        name: cookie.name,
-        storeId: cookie.storeId,
-    })
+export const copyCookie = async (srcDomain, destDomain, name) => {
+    const cookie = await getCookie(srcDomain, name)
+    if (!cookie) {
+        console.log(`未登录，先打开 https://${srcDomain} 登录`)
+        chrome.tabs.create({ url: `https://${srcDomain}` })
+        return
+    }
+
+    await deleteCookie(destDomain, name)
+    const cookieUrl = `http://${destDomain}${cookie.path}`
+    try {
+        const setResult = await chrome.cookies.set({
+            name: name,
+            url: cookieUrl,
+            value: cookie.value,
+        })
+        console.log(
+            `从 ${srcDomain} 拷贝 ${name} 到 ${destDomain} 成功`,
+            setResult
+        )
+    } catch (e) {
+        console.log(`从 ${srcDomain} 拷贝 ${name} 到 ${destDomain} 失败`, e)
+    }
 }
 
 ;(async function initPopupWindow() {
