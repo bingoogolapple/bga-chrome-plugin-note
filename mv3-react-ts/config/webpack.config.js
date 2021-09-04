@@ -77,6 +77,8 @@ const hasJsxRuntime = (() => {
   }
 })();
 
+const multiPageTools = require('./multi-page-tools');
+
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
 module.exports = function (webpackEnv) {
@@ -169,6 +171,7 @@ module.exports = function (webpackEnv) {
       : isEnvDevelopment && 'cheap-module-source-map',
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
+    /*
     entry:
       isEnvDevelopment && !shouldUseReactRefresh
         ? [
@@ -194,6 +197,8 @@ module.exports = function (webpackEnv) {
             // changing JS code would still trigger a refresh.
           ]
         : paths.appIndexJs,
+    */
+    entry: multiPageTools.allSitePath(isEnvDevelopment),
     output: {
       // The build folder.
       path: isEnvProduction ? paths.appBuild : undefined,
@@ -201,14 +206,29 @@ module.exports = function (webpackEnv) {
       pathinfo: isEnvDevelopment,
       // There will be one main bundle, and one file per asynchronous chunk.
       // In development, it does not produce real files.
+      /*
       filename: isEnvProduction
         ? 'static/js/[name].[contenthash:8].js'
         : isEnvDevelopment && 'static/js/bundle.js',
+      */
+      filename: (pathData) => {
+          let dirPrefix = 'static/js/'
+          // Chrome 扩展要求 background.js 必须要放到最外层
+          if (pathData.chunk.name === 'background') {
+            dirPrefix = ''
+          }
+          return isEnvProduction ? `${dirPrefix}[name].js` : isEnvDevelopment && `${dirPrefix}[name].bundle.js`
+      },
       // TODO: remove this when upgrading to webpack 5
       futureEmitAssets: true,
       // There are also additional JS chunk files if you use code splitting.
+      /*
       chunkFilename: isEnvProduction
         ? 'static/js/[name].[contenthash:8].chunk.js'
+        : isEnvDevelopment && 'static/js/[name].chunk.js',
+      */
+      chunkFilename: isEnvProduction
+        ? 'static/js/[name].chunk.js'
         : isEnvDevelopment && 'static/js/[name].chunk.js',
       // webpack uses `publicPath` to determine where the app is being served from.
       // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -296,16 +316,21 @@ module.exports = function (webpackEnv) {
       // Automatically split vendor and commons
       // https://twitter.com/wSokra/status/969633336732905474
       // https://medium.com/webpack/webpack-4-code-splitting-chunk-graph-and-the-splitchunks-optimization-be739a861366
+      /*
       splitChunks: {
         chunks: 'all',
         name: isEnvDevelopment,
       },
+      */
       // Keep the runtime chunk separated to enable long term caching
       // https://twitter.com/wSokra/status/969679223278505985
       // https://github.com/facebook/create-react-app/issues/5358
+      /*
       runtimeChunk: {
         name: entrypoint => `runtime-${entrypoint.name}`,
       },
+      */
+      runtimeChunk: false,
     },
     resolve: {
       // This allows you to set a fallback for where webpack should look for modules.
@@ -334,6 +359,7 @@ module.exports = function (webpackEnv) {
           'scheduler/tracing': 'scheduler/tracing-profiling',
         }),
         ...(modules.webpackAliases || {}),
+        '@': path.join(__dirname, '..', 'src'),
       },
       plugins: [
         // Adds support for installing with Plug'n'Play, leading to faster installs and adding
@@ -558,6 +584,8 @@ module.exports = function (webpackEnv) {
     },
     plugins: [
       // Generates an `index.html` file with the <script> injected.
+      ...multiPageTools.htmlPlugin(isEnvProduction, isEnvDevelopment),
+      /*
       new HtmlWebpackPlugin(
         Object.assign(
           {},
@@ -583,6 +611,7 @@ module.exports = function (webpackEnv) {
             : undefined
         )
       ),
+      */
       // Inlines the webpack runtime script. This script is too small to warrant
       // a network request.
       // https://github.com/facebook/create-react-app/issues/5358
@@ -635,8 +664,12 @@ module.exports = function (webpackEnv) {
         new MiniCssExtractPlugin({
           // Options similar to the same options in webpackOptions.output
           // both options are optional
+          /*
           filename: 'static/css/[name].[contenthash:8].css',
           chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
+          */
+          filename: 'static/css/[name].css',
+          chunkFilename: 'static/css/[name].chunk.css',
         }),
       // Generate an asset manifest file with the following content:
       // - "files" key: Mapping of all asset filenames to their corresponding
@@ -644,6 +677,7 @@ module.exports = function (webpackEnv) {
       //   `index.html`
       // - "entrypoints" key: Array of files which are included in `index.html`,
       //   can be used to reconstruct the HTML if necessary
+      /*
       new ManifestPlugin({
         fileName: 'asset-manifest.json',
         publicPath: paths.publicUrlOrPath,
@@ -662,6 +696,7 @@ module.exports = function (webpackEnv) {
           };
         },
       }),
+      */
       // Moment.js is an extremely popular library that bundles large locale files
       // by default due to how webpack interprets its code. This is a practical
       // solution that requires the user to opt into importing specific locales.

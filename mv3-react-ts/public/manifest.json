@@ -1,25 +1,83 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
-  "icons": [
-    {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+    "manifest_version": 3,
+    "name": "bga-chrome-plugin-note-v3",
+    "description": "Chrome 插件开发学习笔记",
+    "version": "1.0.0",
+    "icons": {
+        "16": "images/16.png",
+        "32": "images/32.png",
+        "48": "images/48.png",
+        "128": "images/128.png"
     },
-    {
-      "src": "logo192.png",
-      "type": "image/png",
-      "sizes": "192x192"
+    "permissions": [
+        "storage",
+        "activeTab",
+        "scripting",
+        "cookies",
+        "contextMenus",
+        "notifications",
+        "alarms",
+        "webRequest",
+        "declarativeContent"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "background": {
+        "service_worker": "background.js"
     },
-    {
-      "src": "logo512.png",
-      "type": "image/png",
-      "sizes": "512x512"
+    "options_ui": {
+        "page": "options.html",
+        "open_in_tab": true
+    },
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "images/16.png",
+            "32": "images/32.png",
+            "48": "images/48.png",
+            "128": "images/128.png"
+        },
+        "default_title": "默认使用的是name，这里自定义一下react"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.baidu.com/*"
+            ],
+            "css": [
+                "static/css/content.css"
+            ],
+            "js": [
+                "static/js/content.js"
+            ],
+            "all_frames": true,
+            "run_at": "document_end"
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "matches": [
+                "https://www.baidu.com/*"
+            ],
+            "resources": [
+                "static/js/inject.js"
+            ]
+        }
+    ],
+    "commands": {
+        "_execute_action": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+O",
+                "mac": "MacCtrl+Shift+O"
+            },
+            "description": "打开 popup.html"
+        }
+    },
+    "chrome_url_overrides": {
+        "newtab": "newtab.html"
+    },
+    "omnibox": {
+        "keyword": "bga"
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
 }
