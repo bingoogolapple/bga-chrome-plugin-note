@@ -1,4 +1,9 @@
-console.log('来自 contentScript.js 的日志')
+/* global chrome */
+
+// 这里需要 import 一下 content.css，否则不会被打包
+import './content.css'
+
+console.log('来自 content.js 的日志')
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log('content 收到消息', request, sender)
     sendResponse('我是来自 content 的响应消息')
@@ -22,7 +27,7 @@ if (node) {
 }
 
 // 动态加载文件时需要在 manifest.json -> web_accessible_resources 中配置
-let jsPath = 'web_accessible_resources/inject.js'
+let jsPath = 'static/js/inject.js'
 let temp = document.createElement('script')
 temp.src = chrome.runtime.getURL(jsPath)
 temp.setAttribute('type', 'text/javascript')

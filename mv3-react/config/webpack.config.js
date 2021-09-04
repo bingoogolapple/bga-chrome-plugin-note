@@ -211,9 +211,13 @@ module.exports = function (webpackEnv) {
         ? 'static/js/[name].[contenthash:8].js'
         : isEnvDevelopment && 'static/js/bundle.js',
       */
-      filename: isEnvProduction
-        ? 'static/js/[name].js'
-        : isEnvDevelopment && 'static/js/[name].bundle.js',
+      filename: (pathData) => {
+          let dirPrefix = 'static/js/'
+          if (pathData.chunk.name === 'background') {
+            dirPrefix = ''
+          }
+          return isEnvProduction ? `${dirPrefix}[name].js` : isEnvDevelopment && `${dirPrefix}[name].bundle.js`
+        },
       // TODO: remove this when upgrading to webpack 5
       futureEmitAssets: true,
       // There are also additional JS chunk files if you use code splitting.

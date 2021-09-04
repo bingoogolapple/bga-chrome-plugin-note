@@ -27,6 +27,9 @@ const htmlPlugin = (isEnvProduction, isEnvDevelopment) => {
     let arr = []
     fileNameLists.forEach((item) => {
         let filename = item.substring(item.lastIndexOf('/') + 1)
+        if (filename === 'background' || filename === 'content' || filename === 'inject') {
+            return
+        }
 
         arr.push(
             // Generates an `index.html` file with the <script> injected.
