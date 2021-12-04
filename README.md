@@ -2,13 +2,28 @@
 
 Chrome 插件开发学习笔记
 
-## 文档
+## 相关链接
 
 - [官方文档](https://developer.chrome.com/docs/extensions/mv3/getstarted)
 - [chrome-extensions-samples](https://github.com/GoogleChrome/chrome-extensions-samples)
-- [中文文档](https://wizardforcel.gitbooks.io/chrome-doc/content/index.html)
-- [发布](https://developer.chrome.com/docs/webstore/publish/)
-- [参考文章1](https://github.com/0326/iBookmark/wiki)
+- [接口文档](https://developer.chrome.com/docs/extensions/reference/)
+- [清单文件 - manifest.json](https://developer.chrome.com/docs/extensions/mv3/manifest/)
+- [权限申请 - permissions](https://developer.chrome.com/docs/extensions/reference/permissions/)
+- [后台服务 - background](https://developer.chrome.com/docs/extensions/mv3/service_workers/)
+- [右上角 logo、按钮、浮窗 - action](https://developer.chrome.com/docs/extensions/reference/action/)
+- [插件可选项配置页面 - options-ui](https://developer.chrome.com/docs/extensions/mv3/options/)
+- [内容脚本 - content_scripts](https://developer.chrome.com/docs/extensions/mv3/content_scripts/)
+- [各模块通信 - message](https://developer.chrome.com/docs/extensions/mv3/messaging/)
+- [右键菜单 - contextMenus](https://developer.chrome.com/docs/extensions/reference/contextMenus/)
+- [开发者工具 - devtools](https://developer.chrome.com/docs/extensions/mv3/devtools/)
+- [注册开发者账号](https://chrome.google.com/webstore/devconsole)
+- [插件发布地址](https://developer.chrome.com/docs/webstore/publish/)
+- 可以结合 [crx npm 包](https://www.npmjs.com/package/crx) 打包
+- [国人整理的各种 Chrome 插件 demo](https://github.com/sxei/chrome-plugin-demo)
+- [中文文档](https://github.com/facert/chrome-extension-guide)
+- [Vite2 插件：用于使用 Vite2 + Vue3 开发 Chrome 拓展，且支持开发过程中插件热重载](https://github.com/yeqisong/vite-plugin-vue-crx3)
+- [Webpack + React 开发 Chrome 插件样板代码](https://github.com/lxieyang/chrome-extension-boilerplate-react)
+- [参考文章 1](https://github.com/0326/iBookmark/wiki)
 
 ## manifest.json
 
@@ -49,14 +64,10 @@ Chrome 插件开发学习笔记
 
 - 调试 background.js「chrome://extensions -> 对应插件 -> Service Worker」
 - 调试 popup.js 或 background.js「两个手指点击插件图标或右键 -> 审查弹出内容」
+- 调试 newtab、option、devtools 与调试普通网页一样，按 F12 即可
 - 前期可以直接在控制台中测试各种 API 用法，通了再拷贝到代码文件中
 
 ## 其他
 
 - 不允许在 html 中加载远程 js，需要下载到本地
 - 不允许使用内联 js
-- 可以结合 [crx](https://www.npmjs.com/package/crx) 打包
-
-## 账号
-
-- [注册地址](https://chrome.google.com/webstore/devconsole)

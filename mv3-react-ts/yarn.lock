@@ -1772,6 +1772,14 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
+"@types/chrome@^0.0.166":
+  version "0.0.166"
+  resolved "http://r.npm.sankuai.com/@types/chrome/download/@types/chrome-0.0.166.tgz#cdbab1d841e2eefbe902d0e86f39b07d89f4da65"
+  integrity sha1-zbqx2EHi7vvpAtDobzmwfYn02mU=
+  dependencies:
+    "@types/filesystem" "*"
+    "@types/har-format" "*"
+
 "@types/eslint@^7.2.6":
   version "7.28.0"
   resolved "http://r.npm.sankuai.com/@types/eslint/download/@types/eslint-7.28.0.tgz#7e41f2481d301c68e14f483fe10b017753ce8d5a"
@@ -1790,6 +1798,18 @@
   resolved "http://r.npm.sankuai.com/@types/estree/download/@types/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
   integrity sha1-4Xfmme4bjCLSMXTKqnQiZEOJUJ8=
 
+"@types/filesystem@*":
+  version "0.0.32"
+  resolved "http://r.npm.sankuai.com/@types/filesystem/download/@types/filesystem-0.0.32.tgz#307df7cc084a2293c3c1a31151b178063e0a8edf"
+  integrity sha1-MH33zAhKIpPDwaMRUbF4Bj4Kjt8=
+  dependencies:
+    "@types/filewriter" "*"
+
+"@types/filewriter@*":
+  version "0.0.29"
+  resolved "http://r.npm.sankuai.com/@types/filewriter/download/@types/filewriter-0.0.29.tgz#a48795ecadf957f6c0d10e0c34af86c098fa5bee"
+  integrity sha1-pIeV7K35V/bA0Q4MNK+GwJj6W+4=
+
 "@types/glob@^7.1.1":
   version "7.1.4"
   resolved "http://r.npm.sankuai.com/@types/glob/download/@types/glob-7.1.4.tgz#ea59e21d2ee5c517914cb4bc8e4153b99e566672"
@@ -1804,6 +1824,11 @@
   integrity sha1-If+6DZjaQ1DbZIkfkqnl2zzbThU=
   dependencies:
     "@types/node" "*"
+
+"@types/har-format@*":
+  version "1.2.8"
+  resolved "http://r.npm.sankuai.com/@types/har-format/download/@types/har-format-1.2.8.tgz#e6908b76d4c88be3db642846bb8b455f0bfb1c4e"
+  integrity sha1-5pCLdtTIi+PbZChGu4tFXwv7HE4=
 
 "@types/html-minifier-terser@^5.0.0":
   version "5.1.2"

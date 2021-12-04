@@ -1,2 +1,9 @@
-// @types/chrome 未支持 "manifest_version": 3，先将 chrome 设置成功 any 避免报错
-declare const chrome: any
+// 最新版 @types/chrome 已支持 "manifest_version": 3，但还有部分类型未支持
+declare namespace chrome.runtime {
+  export enum OnInstalledReason {
+    CHROME_UPDATE = 'chrome_update',
+    INSTALL = 'install',
+    SHARED_MODULE_UPDATE = 'shared_module_update',
+    UPDATE = 'update',
+  }
+}

@@ -17,6 +17,7 @@
         "contextMenus",
         "notifications",
         "alarms",
+        "tts",
         "webRequest",
         "declarativeContent"
     ],
@@ -78,6 +79,7 @@
     "chrome_url_overrides": {
         "newtab": "html/newtab.html"
     },
+    "devtools_page": "html/devtools.html",
     "omnibox": {
         "keyword": "bga"
     }
