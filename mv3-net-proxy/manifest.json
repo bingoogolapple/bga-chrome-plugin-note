@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "bga-chrome-plugin-note-v3-net-proxy",
+  "description": "Chrome 插件开发学习笔记",
+  "version": "1.0.0",
+  "icons": {
+    "16": "images/16.png",
+    "32": "images/32.png",
+    "48": "images/48.png",
+    "128": "images/128.png"
+  },
+  "permissions": ["webRequest"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://aa.bb.com/xxx"],
+      "js": ["content.js"],
+      "all_frames": true,
+      "run_at": "document_end"
+    }
+  ]
+}
