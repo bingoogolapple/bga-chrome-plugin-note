@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "bga-chrome-plugin-note-v3",
+    "name": "mv3-react-ts-webpack",
     "description": "Chrome 插件开发学习笔记",
     "version": "1.0.0",
     "icons": {

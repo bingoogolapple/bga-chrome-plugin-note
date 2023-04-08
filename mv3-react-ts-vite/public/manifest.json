@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "bga-chrome-plugin-note-v3",
+    "name": "mv3-react-ts-vite",
     "description": "Chrome 插件开发学习笔记",
     "version": "1.0.0",
     "icons": {
@@ -24,14 +24,15 @@
         "<all_urls>"
     ],
     "background": {
-        "service_worker": "background.js"
+        "service_worker": "background.js",
+        "type": "module"
     },
     "options_ui": {
-        "page": "options.html",
+        "page": "src/entries/options/options.html",
         "open_in_tab": true
     },
     "action": {
-        "default_popup": "popup.html",
+        "default_popup": "src/entries/popup/popup.html",
         "default_icon": {
             "16": "images/16.png",
             "32": "images/32.png",
@@ -75,8 +76,9 @@
         }
     },
     "chrome_url_overrides": {
-        "newtab": "newtab.html"
+        "newtab": "src/entries/newtab/newtab.html"
     },
+    "devtools_page": "src/entries/devtools/devtools.html",
     "omnibox": {
         "keyword": "bga"
     }

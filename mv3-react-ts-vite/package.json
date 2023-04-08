@@ -1,21 +1,27 @@
 {
   "name": "mv3-react-ts-vite",
-  "version": "0.0.0",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "serve": "vite preview"
+    "dev": "cross-env CRX_ENV=development pnpm build",
+    "release": "cross-env CRX_ENV=production pnpm build",
+    "build": "rimraf extension && tsc && vite build --mode esm && vite build --mode content && vite build --mode inject"
   },
   "dependencies": {
-    "react": "^17.0.0",
-    "react-dom": "^17.0.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
-    "@vitejs/plugin-react": "^1.0.0",
-    "path": "^0.12.7",
-    "typescript": "^4.3.2",
-    "vite": "^2.6.0"
+    "@types/chrome": "^0.0.228",
+    "@types/node": "^18.15.11",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@vitejs/plugin-react-swc": "^3.2.0",
+    "cross-env": "^7.0.3",
+    "rimraf": "^4.4.1",
+    "rollup": "^3.20.2",
+    "typescript": "^4.9.5",
+    "vite": "^4.1.4"
   }
 }

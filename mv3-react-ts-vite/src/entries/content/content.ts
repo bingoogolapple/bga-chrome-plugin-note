@@ -1,5 +1,3 @@
-/* global chrome */
-
 // 这里需要 import 一下 content.css，否则不会被打包
 import './content.css'
 
