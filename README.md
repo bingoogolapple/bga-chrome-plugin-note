@@ -24,6 +24,7 @@ Chrome 插件开发学习笔记
 - [Vite2 插件：用于使用 Vite2 + Vue3 开发 Chrome 拓展，且支持开发过程中插件热重载](https://github.com/yeqisong/vite-plugin-vue-crx3)
 - [Webpack + React 开发 Chrome 插件样板代码](https://github.com/lxieyang/chrome-extension-boilerplate-react)
 - [参考文章 1](https://github.com/0326/iBookmark/wiki)
+- [Chrome 插件开发日志](https://juejin.cn/column/7140235168777764894)
 
 ## manifest.json
 

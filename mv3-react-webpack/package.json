@@ -1,5 +1,5 @@
 {
-  "name": "mv3-react",
+  "name": "mv3-react-webpack",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
