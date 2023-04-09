@@ -8,6 +8,9 @@ chrome.runtime.onInstalled.addListener(async (data: any) => {
     let url = chrome.runtime.getURL('src/entries/options/options.html')
     let tab = await chrome.tabs.create({ url })
     console.log(`background 安装完后打开选项 tab ${JSON.stringify(tab)}`)
+
+    // 也可以直接使用 api 打开选项页面
+    // chrome.runtime.openOptionsPage()
   }
 
   console.log('background 初始化完成')
@@ -20,3 +23,5 @@ chrome.runtime.onConnect.addListener((port) => {
     port.postMessage('我是来自 background port.onMessage 的消息')
   })
 })
+
+// import '../../../scripts/crx-hmr-plugin/injectBackground'

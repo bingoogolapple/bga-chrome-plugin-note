@@ -13,6 +13,9 @@ chrome.runtime.onInstalled.addListener(async (data) => {
     let url = chrome.runtime.getURL('options.html')
     let tab = await chrome.tabs.create({ url })
     console.log(`安装完后打开选项 tab ${JSON.stringify(tab)}`)
+
+    // 也可以直接使用 api 打开选项页面
+    // chrome.runtime.openOptionsPage()
   }
 
   // 存储颜色，需要配置 storage 权限

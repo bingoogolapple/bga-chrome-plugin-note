@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import '../../style/index.css'
+import '@/style/index.less'
 import App from './App'
 
 import { testChrome } from '../../utils/chrome-utils'

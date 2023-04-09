@@ -25,6 +25,7 @@ Chrome 插件开发学习笔记
 - [Webpack + React 开发 Chrome 插件样板代码](https://github.com/lxieyang/chrome-extension-boilerplate-react)
 - [参考文章 1](https://github.com/0326/iBookmark/wiki)
 - [Chrome 插件开发日志](https://juejin.cn/column/7140235168777764894)
+- [CRXJS](https://github.com/crxjs/chrome-extension-tools/tree/main/packages/vite-plugin)
 
 ## manifest.json
 

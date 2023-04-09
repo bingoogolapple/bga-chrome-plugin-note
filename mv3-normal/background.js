@@ -12,6 +12,9 @@ chrome.runtime.onInstalled.addListener(async (data) => {
     let url = chrome.runtime.getURL('html/options.html')
     let tab = await chrome.tabs.create({ url })
     console.log(`安装完后打开选项 tab ${JSON.stringify(tab)}`)
+
+    // 也可以直接使用 api 打开选项页面
+    // chrome.runtime.openOptionsPage()
   }
 
   // 存储颜色，需要配置 storage 权限
@@ -288,4 +291,8 @@ chrome.runtime.onConnect.addListener((port) => {
     console.log('background onMessage', msg)
     port.postMessage('我是来自 background 的消息')
   })
+})
+
+chrome.management.getSelf((self) => {
+  console.log('self', JSON.stringify(self))
 })

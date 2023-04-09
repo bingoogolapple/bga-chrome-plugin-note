@@ -4,24 +4,36 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "cross-env CRX_ENV=development pnpm build",
-    "release": "cross-env CRX_ENV=production pnpm build",
-    "build": "rimraf extension && tsc && vite build --mode esm && vite build --mode content && vite build --mode inject"
+    "build": "concurrently \"pnpm:build:background\" \"pnpm:build:page\" \"pnpm:build:content\" \"pnpm:build:inject\"",
+    "build:background": "vite build --mode background",
+    "build:page": "vite build --mode page",
+    "build:content": "vite build --mode content",
+    "build:inject": "vite build --mode inject",
+    "dev": "rimraf dist && tsc && cross-env CRX_ENV=development pnpm build",
+    "release": "rimraf dist && tsc && cross-env CRX_ENV=production pnpm build"
   },
   "dependencies": {
+    "antd": "^5.3.3",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.10.0"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.228",
     "@types/node": "^18.15.11",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
+    "@types/ws": "^8.5.4",
     "@vitejs/plugin-react-swc": "^3.2.0",
+    "chokidar": "^3.5.3",
+    "concurrently": "^7.6.0",
     "cross-env": "^7.0.3",
+    "less": "^4.1.3",
     "rimraf": "^4.4.1",
     "rollup": "^3.20.2",
     "typescript": "^4.9.5",
-    "vite": "^4.1.4"
+    "vite": "^4.1.4",
+    "vite-plugin-imp": "^2.3.1",
+    "ws": "^8.13.0"
   }
 }
