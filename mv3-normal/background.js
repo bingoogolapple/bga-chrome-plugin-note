@@ -35,21 +35,6 @@ chrome.runtime.onInstalled.addListener(async (data) => {
     )
   })
 
-  chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
-    chrome.declarativeContent.onPageChanged.addRules([
-      {
-        conditions: [
-          new chrome.declarativeContent.PageStateMatcher({
-            pageUrl: {
-              hostEquals: 'www.baidu.com',
-              schemes: ['https'],
-            },
-          }),
-        ],
-        actions: [new chrome.declarativeContent.ShowPageAction()],
-      },
-    ])
-  })
   console.log('初始化完成')
 })
 
@@ -277,13 +262,41 @@ function updateIcon() {
 //     }
 // })
 
-chrome.webRequest.onBeforeRequest.addListener(
-  (request) => {
-    console.log('发起网络请求', request)
-  },
-  // { urls: ['<all_urls>'] }
-  { urls: ['https://www.baidu.com/*'] }
-)
+// chrome.webRequest.onBeforeRequest.addListener(
+//   (request) => {
+//     console.log('发起网络请求', request)
+//   },
+//   // { urls: ['<all_urls>'] }
+//   { urls: ['https://www.baidu.com/*'] }
+// )
+
+// 这种方式添加 header 在 v3 中已失效
+// chrome.webRequest.onBeforeSendHeaders.addListener(
+//   (details) => {
+//     console.log('修改请求头', details)
+//     details.requestHeaders?.push({
+//       name: 'x-test-req',
+//       value: 'test value req'
+//     })
+//   },
+//   {
+//     urls: ['https://www.baidu.com/*']
+//   },
+//   ['blocking']
+// )
+// chrome.webRequest.onHeadersReceived.addListener(
+//   (details) => {
+//     console.log('修改响应头', details)
+//     details.responseHeaders?.push({
+//       name: 'x-test-resp',
+//       value: 'test value resp'
+//     })
+//   },
+//   {
+//     urls: ['https://www.baidu.com/*']
+//   },
+//   ['blocking']
+// )
 
 chrome.runtime.onConnect.addListener((port) => {
   console.log('chrome.runtime.onConnect', port)
@@ -293,6 +306,124 @@ chrome.runtime.onConnect.addListener((port) => {
   })
 })
 
-chrome.management.getSelf((self) => {
-  console.log('self', JSON.stringify(self))
+// setTimeout(() => {
+//   console.log('background chrome.runtime.id', chrome.runtime.id)
+//   chrome.management.getSelf((self) => {
+//     console.log('background getSelf', self)
+//   })
+
+//   const manifest = chrome.runtime.getManifest()
+//   console.log('background getManifest', manifest)
+
+//   chrome.runtime.getPlatformInfo(
+//     (platformInfo) => {
+//       console.log('background getPlatformInfo', platformInfo)
+//     }
+//   )
+// }, 3000);
+
+
+
+// 这种方式只能监听插件自身的网络请求
+// const initFetchListener = () => {
+//   console.log('初始化 fetch event listener')
+//   const mockData = [{
+//     url: '/xxx',
+//     method: 'get',
+//     responseData: JSON.stringify({
+//       code: 0,
+//       data: [
+//         {
+//           name: 'bga1',
+//           age: 31
+//         },
+//         {
+//           name: 'bga2',
+//           age: 32
+//         }
+//       ]
+//     })
+//   }]
+//   const checkMockData = (url, method) => {
+//     for (let data of mockData) {
+//       // if (data.url === url && data.method === method) {
+//         return data.responseData
+//       // }
+//     }
+//   }
+//   self.addEventListener('fetch', (e) => {
+//     console.log('监听到 fetch', e)
+//     const response = checkMockData(e.request.url, e.request.method)
+//     if (response) {
+//       e.respondWith(new Response(response, { headers: { 'Content-Type': 'text/html' } }))
+//     }
+//   })
+// }
+// initFetchListener()
+
+
+// chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
+//   chrome.declarativeContent.onPageChanged.addRules([
+//     {
+//       conditions: [
+//         new chrome.declarativeContent.PageStateMatcher({
+//           pageUrl: {
+//             hostEquals: 'www.baidu.com',
+//             schemes: ['https'],
+//           },
+//         }),
+//       ],
+//       actions: [new chrome.declarativeContent.ShowPageAction()],
+//     },
+//   ])
+// })
+
+
+// https://developer.chrome.com/docs/extensions/reference/declarativeNetRequest/
+const dynamicRule1 = {
+  id: 20230415,
+  priority: 1,
+  // action: {
+  //   type: "block"
+  // },
+  action: {
+    type: "modifyHeaders",
+    requestHeaders: [
+      {
+        operation: "set",
+        header: 'x-test-req-key-1',
+        value: 'x-test-req-value-1'
+      }
+    ],
+    responseHeaders: [
+      {
+        operation: "set",
+        header: 'x-test-resp-key-1',
+        value: 'x-test-resp-value-1'
+      }
+    ],
+  },
+  condition: {
+    urlFilter: 'baidu.com',
+    // resourceTypes: ['main_frame'],
+  },
+}
+chrome.declarativeNetRequest.getDynamicRules((rules) => {
+  console.log('getDynamicRules', rules)
+  chrome.declarativeNetRequest.updateDynamicRules({
+    // 插件卸载后规则还会存在，每次添加前需要将之前的规则删除
+    removeRuleIds: rules.map(rule => rule.id),
+    addRules: [dynamicRule1]
+  }, (args) => {
+    console.log('updateDynamicRules', args)
+  })
+})
+// 需要添加 declarativeNetRequestFeedback 权限
+chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(
+  (info) => {
+    console.log('declarativeNetRequest.onRuleMatchedDebug', info)
+  }
+)
+chrome.declarativeNetRequest.getEnabledRulesets((rulesetIds) => {
+  console.log('getEnabledRulesets', rulesetIds)
 })

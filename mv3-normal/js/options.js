@@ -48,6 +48,9 @@ document.getElementById('openOptions').addEventListener('click', async () => {
   let url = chrome.runtime.getURL('html/options.html')
   let tab = await chrome.tabs.create({ url })
   console.log(`打开选项 tab ${JSON.stringify(tab)}`)
+
+  // 也可以直接使用 api 打开选项页面
+  // chrome.runtime.openOptionsPage()
 })
 document.getElementById('openBaidu').addEventListener('click', async () => {
   let url = 'https://www.baidu.com'
@@ -129,3 +132,19 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
     )
   }
 })
+
+setTimeout(() => {
+  console.log('options chrome.runtime.id', chrome.runtime.id)
+  chrome.management.getSelf((self) => {
+    console.log('options getSelf', self)
+  })
+
+  const manifest = chrome.runtime.getManifest()
+  console.log('options getManifest', manifest)
+
+  chrome.runtime.getPlatformInfo(
+    (platformInfo) => {
+      console.log('options getPlatformInfo', platformInfo)
+    }
+  )
+}, 5000)

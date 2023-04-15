@@ -26,6 +26,9 @@ Chrome 插件开发学习笔记
 - [参考文章 1](https://github.com/0326/iBookmark/wiki)
 - [Chrome 插件开发日志](https://juejin.cn/column/7140235168777764894)
 - [CRXJS](https://github.com/crxjs/chrome-extension-tools/tree/main/packages/vite-plugin)
+- [chrome-extension-vite-react](https://github.com/spiderT/chrome-extension-vite-react)
+- [ajax-proxy](https://github.com/g0ngjie/ajax-proxy)
+- [做个Chrome小扩展mock请求从此测试如飞](https://juejin.cn/post/6955828684594872333)
 
 ## manifest.json
 

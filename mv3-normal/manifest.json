@@ -19,7 +19,9 @@
         "alarms",
         "tts",
         "webRequest",
-        "declarativeContent"
+        "declarativeContent",
+        "declarativeNetRequest",
+        "declarativeNetRequestFeedback"
     ],
     "host_permissions": [
         "<all_urls>"
