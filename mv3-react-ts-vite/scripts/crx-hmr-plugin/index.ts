@@ -1,4 +1,4 @@
-import type { Plugin, ResolvedConfig, BuildOptions } from 'vite'
+import type { PluginOption, ResolvedConfig, BuildOptions } from 'vite'
 import { PreRenderedChunk, PreRenderedAsset } from 'rollup'
 import WebSocket, { WebSocketServer } from 'ws'
 import {
@@ -12,6 +12,7 @@ import {
 import { resolve } from 'path'
 import { IncomingMessage } from 'http'
 import chokidar from 'chokidar'
+// import { killProcessByPort } from './utils'
 
 const parseMode = (mode: string) => {
   let isIife = false
@@ -48,7 +49,7 @@ export const getCrxBuildConfig = ({
   mode,
   pageInput = {},
 }: ICrxBuildConfigProps): BuildOptions => {
-  let input: Record<string, string> = null
+  let input: Record<string, string> = {}
   let format: 'esm' | 'iife' = 'esm'
   const { isBackground, isIife } = parseMode(mode)
   if (isBackground) {
@@ -119,7 +120,7 @@ export const getCrxBuildConfig = ({
          * 自定义构建结果中的静态文件名称
          * 0、默认值为 'assets/[name]-[hash][extname]'
          */
-        assetFileNames: (chunkInfo: PreRenderedAsset) => {
+        assetFileNames: (_chunkInfo: PreRenderedAsset) => {
           // console.log(`assetFileName ${chunkInfo.name}`)
           if (mode === 'content') {
             return `assets/content[extname]`
@@ -130,7 +131,7 @@ export const getCrxBuildConfig = ({
          * 对代码分割中产生的 chunk 文件自定义命名
          * 0、默认值为 'assets/[name]-[hash].js'
          */
-        chunkFileNames: (chunkInfo: PreRenderedChunk) => {
+        chunkFileNames: (_chunkInfo: PreRenderedChunk) => {
           // console.log(`chunkFileName ${chunkInfo.name}`)
           return 'assets/[name].js'
         },
@@ -159,10 +160,10 @@ export const getCrxBuildConfig = ({
 
 const crxHmrPort = 54321
 
-const logServer = (...args: string[]) =>
+const logServer = (...args: any[]) =>
   console.log('WebSocketServer::', ...args)
 
-const logClient = (...args: string[]) =>
+const logClient = (...args: any[]) =>
   console.log('WebSocketServerClient::', ...args)
 
 const getQueryString = (req: IncomingMessage, name: string) => {
@@ -175,7 +176,7 @@ const getQueryString = (req: IncomingMessage, name: string) => {
 }
 
 const initWebSocketServer = (viteDirname: string) => {
-  let webSocketServer: WebSocketServer = null
+  let webSocketServer: WebSocketServer | null = null
 
   const handleServerChanged = () => {
     if (webSocketServer === null) {
@@ -190,6 +191,12 @@ const initWebSocketServer = (viteDirname: string) => {
   }
   const watchPublicDir = () => {
     logServer('监听 public 目录变更')
+
+    // watch.watchTree(resolve(viteDirname, 'public'), (f, curr, prev) => {
+    //   console.log('watchTree f', f)
+    //   console.log('watchTree curr', curr)
+    //   console.log('watchTree prev', prev)
+    // })
 
     chokidar
       .watch([resolve(viteDirname, 'public')], { ignoreInitial: true })
@@ -248,12 +255,12 @@ const initWebSocketServer = (viteDirname: string) => {
         const info = `${message}`
         if (info === 'CONTENT_CHANGED') {
           logServer('监听到 content 代码变化，通知客户端重新加载')
-          webSocketServer.clients.forEach((ws) => {
+          webSocketServer?.clients.forEach((ws) => {
             ws.send(info)
           })
         } else if (info === 'PAGE_CHANGED') {
           logServer('监听到 page 代码变化，通知客户端重新加载')
-          webSocketServer.clients.forEach((ws) => {
+          webSocketServer?.clients.forEach((ws) => {
             ws.send(info)
           })
         }
@@ -271,7 +278,7 @@ const initWebSocketServer = (viteDirname: string) => {
   }
 }
 const initWebSocketClient = (mode: string) => {
-  let webSocketClient = null
+  let webSocketClient: WebSocket | null = null
   let isReady = false
   const connectWebSocketServer = () => {
     if (webSocketClient || isReady) {
@@ -282,7 +289,7 @@ const initWebSocketClient = (mode: string) => {
       webSocketClient = new WebSocket(
         `ws://127.0.0.1:${crxHmrPort}?mode=${mode}`
       )
-      webSocketClient.addEventListener('open', (event) => {
+      webSocketClient.addEventListener('open', (_event) => {
         logClient(mode, 'connectWebSocketServer => 成功')
         isReady = true
       })
@@ -328,8 +335,12 @@ interface IProps {
   viteDirname: string
 }
 
-export const cxrHmrPlugin = ({ mode, viteDirname }: IProps): Plugin => {
+export const cxrHmrPlugin = ({ mode, viteDirname }: IProps): PluginOption => {
   const { isBackground, isIife, isPage } = parseMode(mode)
+
+  // if (isBackground) {
+  //   killProcessByPort(crxHmrPort)
+  // }
 
   const { startWebSocketServer, handleServerChanged } =
     initWebSocketServer(viteDirname)
@@ -340,7 +351,7 @@ export const cxrHmrPlugin = ({ mode, viteDirname }: IProps): Plugin => {
   let resolvedInput: string[] = []
 
   return {
-    name: 'crx-hot-reload',
+    name: '@bgafe/vite-plugin-crx-hmr',
     enforce: 'pre',
     /**
      * 在解析 Vite 配置后调用。使用这个钩子读取和存储最终解析的配置
@@ -349,7 +360,7 @@ export const cxrHmrPlugin = ({ mode, viteDirname }: IProps): Plugin => {
     configResolved(config: ResolvedConfig) {
       resolvedConfig = config
       resolvedInput = Object.values(
-        resolvedConfig.build.rollupOptions.input
+        resolvedConfig.build.rollupOptions.input || {}
       ).map((item) => item.substring(0, item.lastIndexOf('.')))
 
       if (isBackground) {
@@ -360,7 +371,7 @@ export const cxrHmrPlugin = ({ mode, viteDirname }: IProps): Plugin => {
         setTimeout(connectWebSocketServer, 2000)
       }
     },
-    transform(code, id) {
+    transform(code, id, _options) {
       if (isBackground && id.includes('background/background.ts')) {
         const injectDevCode = readFileSync(
           resolve(__dirname, 'injectBackground.ts'),
@@ -369,15 +380,16 @@ export const cxrHmrPlugin = ({ mode, viteDirname }: IProps): Plugin => {
         return code + injectDevCode
       } else if (
         isPage &&
-        resolvedInput.includes(id.substring(0, id.lastIndexOf('.')))
+        resolvedInput.includes(id.substring(0, id.lastIndexOf('.'))) && !id.includes('.html')
       ) {
-        // TODO 注入页面代码后未生效，直接展示到了界面上
-        // const injectDevCode = readFileSync(
-        //   resolve(__dirname, 'injectPage.ts'),
-        //   'utf-8'
-        // )
-        // return code + injectDevCode
+        let injectDevCode = readFileSync(
+          resolve(__dirname, 'injectPage.ts'),
+          'utf-8'
+        )
+        injectDevCode = injectDevCode.replace('{pageNamePlaceholder}', id.substring(id.lastIndexOf('/') + 1, id.lastIndexOf('.')))
+        return code + injectDevCode
       }
+      return code
     },
     writeBundle() {
       if (isBackground) {

@@ -81,3 +81,4 @@ Chrome 插件开发学习笔记
 
 - 访问 chrome://version 找到个人资料路径
 - 其他插件源码地址为：${个人资料路径}/Extensions
+- 也可以在不安装插件的情况下，直接使用 [Chrome extension source viewer](https://chrome.google.com/webstore/detail/chrome-extension-source-v/jifpbeccnghkjeaalbbjmodiffmgedin?hl=zh-CN) 查看应用商店里其他插件的源码

@@ -1,18 +1,26 @@
 const crxHmrPort = 54321
 
-const reloadContent = async () => {
+const getCurrentTab = async () => {
   const [tab] = await chrome.tabs.query({
     active: true,
     lastFocusedWindow: true,
     // currentWindow: true,
   })
   if (!tab) {
-    console.log('background reloadContent::', '当前 tab 内容为空')
+    console.log('background getCurrentTab::', '当前 tab 内容为空')
     return
   }
-  console.log('background reloadContent::', '当前 tab 为', JSON.stringify(tab))
+  console.log('background getCurrentTab::', '当前 tab 为', JSON.stringify(tab))
   if (!tab.id) {
-    console.log('background reloadContent::', '当前 tab 没有 id')
+    console.log('background getCurrentTab::', '当前 tab 没有 id')
+    return
+  }
+  return tab
+}
+
+const reloadContent = async () => {
+  const tab = await getCurrentTab()
+  if (!tab || !tab.id) {
     return
   }
 
@@ -35,28 +43,13 @@ const reloadContent = async () => {
     })
 }
 const reloadPage = async () => {
-  let tabs = await chrome.tabs.query({})
-  tabs = tabs.filter(
-    (tab) => !tab.url || tab.url?.startsWith('chrome-extension')
-  )
-  console.log('tabs', tabs)
-  const [tab] = await chrome.tabs.query({
-    active: true,
-    lastFocusedWindow: true,
-    // currentWindow: true,
-  })
-  if (!tab) {
-    console.log('background reloadPage::', '当前 tab 内容为空')
-    return
-  }
-  console.log('background reloadPage::', '当前 tab 为', JSON.stringify(tab))
-  if (!tab.id) {
-    console.log('background reloadPage::', '当前 tab 没有 id')
-    return
-  }
+  // const tab = await getCurrentTab()
+  // if (!tab) {
+  //   return
+  // }
 
   // 这种方式只能刷新当前选中的 tab，不支持自动刷新 popup、devtools、devtools-panel
-  chrome.tabs.reload(tab.id)
+  // chrome.tabs.reload(tab.id)
 
   // 这种方式没权限刷新所有的 page
   // chrome.scripting
@@ -77,14 +70,22 @@ const reloadPage = async () => {
   //     console.log('background reloadPage::', '注入脚本失败', e)
   //   })
 
-  // TODO 插件中注入页面代码后未生效，直接展示到了界面上
-  // chrome.runtime.sendMessage({ mode: 'page', action: 'reload' })
+  // 这种方式会通知所有的 page
+  chrome.runtime.sendMessage({ mode: 'page', action: 'reload' })
 }
-const initCrxHmrWebSocket = () => {
+export const initCrxHmrWebSocket = () => {
+  console.log('background initWebSocketClient::', '初始化 webSocketClient')
   const webSocketClient = new WebSocket(
     `ws://127.0.0.1:${crxHmrPort}?mode=background`
   )
-  console.log('background initWebSocketClient::', '初始化 webSocketClient')
+  setTimeout(() => {
+    if (webSocketClient.readyState === WebSocket.CLOSED) {
+      console.log('background initWebSocketClient::', '初始化 webSocketClient 失败')
+    }
+  }, 1500)
+  webSocketClient.onopen = (event) => {
+    console.log('background initWebSocketClient::', '初始化 webSocketClient 成功', event)
+  }
 
   let isAlive = true
   webSocketClient.addEventListener('message', (e) => {
@@ -108,6 +109,10 @@ const initCrxHmrWebSocket = () => {
       console.log('background initWebSocketClient::', '收到更新页面消息')
       reloadPage()
     } else if (data === 'heartbeatMonitor') {
+      console.log(
+        'background initWebSocketClient::',
+        'heartbeatMonitor'
+      )
       isAlive = true
       const interval = setInterval(() => {
         if (!isAlive) {
@@ -116,19 +121,30 @@ const initCrxHmrWebSocket = () => {
             'heartbeatMonitor 非激活状态 => 重连来探测服务的是否在线'
           )
           const detectWs = new WebSocket(
-            `ws://127.0.0.1:${crxHmrPort}?mode=background`
+            `ws://127.0.0.1:${crxHmrPort}?mode=backgroundDetect`
           )
-          detectWs.onopen = () => {
+          setTimeout(() => {
+            if (detectWs.readyState === WebSocket.CLOSED) {
+              console.log(
+                'background initWebSocketClient::',
+                'heartbeatMonitor 非激活状态 => 重连来探测服务的是否在线 => 不在线，清除定时任务'
+              )
+              clearInterval(interval)
+            }
+          }, 1500)
+          detectWs.onopen = (event) => {
             console.log(
               'background initWebSocketClient::',
-              'heartbeatMonitor 非激活状态 => 重连来探测服务的是否在线 => 在线'
+              'heartbeatMonitor 非激活状态 => 重连来探测服务的是否在线 => 在线',
+              event
             )
             detectWs.close()
+            webSocketClient.close()
             clearInterval(interval)
             initCrxHmrWebSocket()
           }
         }
-      }, 3000 + 500)
+      }, 3000)
     } else if (data === 'heartbeat') {
       console.log('background initWebSocketClient::', 'heartbeat')
       isAlive = true
