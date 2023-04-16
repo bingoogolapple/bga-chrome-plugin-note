@@ -1,4 +1,5 @@
 import child_process from 'child_process'
+import fs from 'fs'
 
 export const killProcessByPort = (port: number) => {
     var lsofCommand = child_process.spawn('lsof', [
@@ -28,4 +29,38 @@ export const killProcessByPort = (port: number) => {
         const data = rst.toString('utf8', 0, rst.length)
         console.log(`查询占用端口 ${port} 的进程失败`, data)
     });
+}
+
+export const deleteFolderRecursive = (path: string) => {
+    if (fs.existsSync(path)) {
+        fs.readdirSync(path).forEach(file => {
+            const curPath = `${path}/${file}`
+            if (fs.lstatSync(curPath).isDirectory()) {
+                // 递归删除文件夹
+                deleteFolderRecursive(curPath)
+            } else {
+                // 删除文件
+                if (fs.existsSync(curPath)) {
+                    fs.unlinkSync(curPath)
+                }
+            }
+        })
+        // 删除文件夹
+        if (fs.existsSync(path)) {
+            fs.rmdirSync(path)
+        }
+    }
+}
+
+export const copyFolderRecursive = (src: string, dest: string) => {
+    fs.mkdirSync(dest, { recursive: true })
+    fs.readdirSync(src).forEach(file => {
+        const srcFile = `${src}/${file}`
+        const destFile = `${dest}/${file}`
+        if (fs.lstatSync(srcFile).isDirectory()) {
+            copyFolderRecursive(srcFile, destFile)
+        } else {
+            fs.copyFileSync(srcFile, destFile)
+        }
+    })
 }

@@ -1,18 +1,21 @@
 import type { PluginOption, ResolvedConfig, BuildOptions } from 'vite'
 import { PreRenderedChunk, PreRenderedAsset } from 'rollup'
 import WebSocket, { WebSocketServer } from 'ws'
+import fs from 'fs'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
+import type { IncomingMessage } from 'http'
+import watch from 'watch'
 import {
-  readFileSync,
-  existsSync,
-  copyFileSync,
-  unlinkSync,
-  mkdirSync,
-  rmdirSync,
-} from 'fs'
-import { resolve } from 'path'
-import { IncomingMessage } from 'http'
+  copyFolderRecursive,
+  deleteFolderRecursive,
+  // killProcessByPort,
+} from './utils'
 import chokidar from 'chokidar'
-// import { killProcessByPort } from './utils'
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const viteDirname = process.cwd()
 
 const parseMode = (mode: string) => {
   let isIife = false
@@ -34,7 +37,6 @@ const parseMode = (mode: string) => {
 
 interface ICrxBuildConfigProps {
   isDev: boolean
-  viteDirname: string
   mode: string
   pageInput?: Record<string, string>
 }
@@ -45,7 +47,6 @@ interface ICrxBuildConfigProps {
  */
 export const getCrxBuildConfig = ({
   isDev,
-  viteDirname,
   mode,
   pageInput = {},
 }: ICrxBuildConfigProps): BuildOptions => {
@@ -74,7 +75,7 @@ export const getCrxBuildConfig = ({
       ),
     }
     Object.keys(defaultPageInput).forEach((key) => {
-      if (!input[key] && existsSync(defaultPageInput[key])) {
+      if (!input[key] && fs.existsSync(defaultPageInput[key])) {
         input[key] = defaultPageInput[key]
       }
     })
@@ -175,7 +176,7 @@ const getQueryString = (req: IncomingMessage, name: string) => {
   return null
 }
 
-const initWebSocketServer = (viteDirname: string) => {
+const initWebSocketServer = () => {
   let webSocketServer: WebSocketServer | null = null
 
   const handleServerChanged = () => {
@@ -192,49 +193,85 @@ const initWebSocketServer = (viteDirname: string) => {
   const watchPublicDir = () => {
     logServer('监听 public 目录变更')
 
-    // watch.watchTree(resolve(viteDirname, 'public'), (f, curr, prev) => {
-    //   console.log('watchTree f', f)
-    //   console.log('watchTree curr', curr)
-    //   console.log('watchTree prev', prev)
-    // })
-
-    chokidar
-      .watch([resolve(viteDirname, 'public')], { ignoreInitial: true })
-      .on('all', (event, path) => {
-        logServer('监听到 public 目录中的文件变更', event, path)
-
-        if (event === 'addDir') {
-          return
-        }
-
+    watch.createMonitor(resolve(viteDirname, 'public'), function (monitor) {
+      monitor.on("created", function (f, stat) {
+        logServer('监听到 public 目录中的新增', f)
+        const path = String(f)
         const destFilePath = path.replace('/public/', '/dist/')
-
-        if (event === 'unlink') {
-          logServer('删除文件', destFilePath)
-          unlinkSync(destFilePath)
-          return
+        if (stat.isDirectory()) {
+          logServer(`新建目录 ${path}`)
+          copyFolderRecursive(path, destFilePath)
+        } else {
+          logServer(`拷贝文件 ${path} 到 ${destFilePath}`)
+          fs.copyFileSync(path, destFilePath)
         }
-        if (event === 'unlinkDir') {
-          logServer('删除目录', destFilePath)
-          rmdirSync(destFilePath)
-          return
-        }
-        if (event === 'add') {
-          const destFileParentPath = destFilePath.substring(
-            0,
-            destFilePath.lastIndexOf('/')
-          )
-          if (!existsSync(destFileParentPath)) {
-            logServer(`新建目录 ${destFileParentPath}`)
-            mkdirSync(destFileParentPath)
-          }
-        }
-
-        logServer(`copy file ${path} to ${destFilePath}`)
-        copyFileSync(path, destFilePath)
-
         handleServerChanged()
       })
+      monitor.on("changed", function (f, _curr, _prev) {
+        logServer('监听到 public 目录中的修改', f)
+        const path = String(f)
+        const destFilePath = path.replace('/public/', '/dist/')
+        logServer(`拷贝文件 ${path} 到 ${destFilePath}`)
+        fs.copyFileSync(path, destFilePath)
+        handleServerChanged()
+      })
+      monitor.on("removed", function (f, _stat) {
+        logServer('监听到 public 目录中的删除', f)
+        const path = String(f)
+        const destFilePath = path.replace('/public/', '/dist/')
+        if (fs.existsSync(destFilePath)) {
+          if (fs.lstatSync(destFilePath).isDirectory()) {
+            logServer(`删除目录 ${destFilePath}`)
+            deleteFolderRecursive(destFilePath)
+          } else {
+            logServer(`删除文件 ${destFilePath}`)
+            if (fs.existsSync(destFilePath)) {
+              fs.unlinkSync(destFilePath)
+            }
+          }
+        }
+        handleServerChanged()
+      })
+    })
+
+    // TODO 打包时会报错。RollupError: Unexpected character '�' (Note that you need plugins to import files that are not JavaScript)
+    // chokidar
+    //   .watch([resolve(viteDirname, 'public')], { ignoreInitial: true })
+    //   .on('all', (event, path) => {
+    //     logServer('监听到 public 目录中的文件变更', event, path)
+
+    //     if (event === 'addDir') {
+    //       return
+    //     }
+
+    //     const destFilePath = path.replace('/public/', '/dist/')
+
+    //     if (event === 'unlink') {
+    //       logServer('删除文件', destFilePath)
+    //       fs.unlinkSync(destFilePath)
+    //       return
+    //     }
+    //     if (event === 'unlinkDir') {
+    //       logServer('删除目录', destFilePath)
+    //       fs.rmdirSync(destFilePath)
+    //       return
+    //     }
+    //     if (event === 'add') {
+    //       const destFileParentPath = destFilePath.substring(
+    //         0,
+    //         destFilePath.lastIndexOf('/')
+    //       )
+    //       if (!fs.existsSync(destFileParentPath)) {
+    //         logServer(`新建目录 ${destFileParentPath}`)
+    //         fs.mkdirSync(destFileParentPath)
+    //       }
+    //     }
+
+    //     logServer(`copy file ${path} to ${destFilePath}`)
+    //     fs.copyFileSync(path, destFilePath)
+
+    //     handleServerChanged()
+    //   })
   }
   const startWebSocketServer = () => {
     watchPublicDir()
@@ -247,7 +284,7 @@ const initWebSocketServer = (viteDirname: string) => {
       logServer('收到新的客户端连接', mode, req.url)
       webSocket.send('heartbeatMonitor')
       const interval = setInterval(() => {
-        logServer('发送心跳')
+        // logServer('发送心跳')
         webSocket.send('heartbeat')
       }, 3000)
 
@@ -332,10 +369,9 @@ const initWebSocketClient = (mode: string) => {
 
 interface IProps {
   mode: string
-  viteDirname: string
 }
 
-export const cxrHmrPlugin = ({ mode, viteDirname }: IProps): PluginOption => {
+export const cxrHmrPlugin = ({ mode }: IProps): PluginOption => {
   const { isBackground, isIife, isPage } = parseMode(mode)
 
   // if (isBackground) {
@@ -343,7 +379,7 @@ export const cxrHmrPlugin = ({ mode, viteDirname }: IProps): PluginOption => {
   // }
 
   const { startWebSocketServer, handleServerChanged } =
-    initWebSocketServer(viteDirname)
+    initWebSocketServer()
   const { connectWebSocketServer, handleClientChanged } =
     initWebSocketClient(mode)
 
@@ -373,7 +409,7 @@ export const cxrHmrPlugin = ({ mode, viteDirname }: IProps): PluginOption => {
     },
     transform(code, id, _options) {
       if (isBackground && id.includes('background/background.ts')) {
-        const injectDevCode = readFileSync(
+        const injectDevCode = fs.readFileSync(
           resolve(__dirname, 'injectBackground.ts'),
           'utf-8'
         )
@@ -382,7 +418,7 @@ export const cxrHmrPlugin = ({ mode, viteDirname }: IProps): PluginOption => {
         isPage &&
         resolvedInput.includes(id.substring(0, id.lastIndexOf('.'))) && !id.includes('.html')
       ) {
-        let injectDevCode = readFileSync(
+        let injectDevCode = fs.readFileSync(
           resolve(__dirname, 'injectPage.ts'),
           'utf-8'
         )
