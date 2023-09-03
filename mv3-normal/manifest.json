@@ -25,7 +25,8 @@
         "declarativeNetRequestFeedback"
     ],
     "host_permissions": [
-        "<all_urls>"
+        "http://*/*",
+        "https://*/*"
     ],
     "background": {
         "service_worker": "background.js"
@@ -47,8 +48,7 @@
     "content_scripts": [
         {
             "matches": [
-                "*://*/*",
-                "file://*"
+                "<all_urls>"
             ],
             "css": [
                 "style/content.css"
@@ -57,7 +57,7 @@
                 "js/contentScript.js"
             ],
             "all_frames": true,
-            "run_at": "document_end"
+            "run_at": "document_start"
         }
     ],
     "web_accessible_resources": [
@@ -66,7 +66,7 @@
                 "js/inject.js"
             ],
             "matches": [
-                "https://www.baidu.com/*"
+                "<all_urls>"
             ]
         }
     ],

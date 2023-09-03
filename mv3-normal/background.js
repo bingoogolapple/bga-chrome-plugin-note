@@ -30,7 +30,7 @@ chrome.runtime.onInstalled.addListener(async (data) => {
   if (data.reason === chrome.runtime.OnInstalledReason.UPDATE) {
     console.log(`更新完后打开选项 tab`)
     // 也可以直接使用 api 打开选项页面
-    chrome.runtime.openOptionsPage()
+    // chrome.runtime.openOptionsPage()
   }
 
   // 存储颜色，需要配置 storage 权限
