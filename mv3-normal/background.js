@@ -6,6 +6,16 @@ chrome.runtime.onInstalled.addListener(async (data) => {
     'OnInstalledReason',
     JSON.stringify(chrome.runtime.OnInstalledReason)
   )
+  chrome.runtime.getPlatformInfo((info) => {
+    console.log('getPlatformInfo', info)
+  })
+  // 该方法不能在 background 中访问
+  // chrome.runtime.getPackageDirectoryEntry((directoryEntry) => {
+  //   console.log('directoryEntry', directoryEntry)
+  // })
+  console.log('chrome.runtime', chrome.runtime)
+  console.log('getManifest', chrome.runtime.getManifest())
+  console.log('selfManagement', chrome.management.getSelf())
   // {"CHROME_UPDATE":"chrome_update","INSTALL":"install","SHARED_MODULE_UPDATE":"shared_module_update","UPDATE":"update"}
   if (data.reason === chrome.runtime.OnInstalledReason.INSTALL) {
     // chrome-extension://mjjadipdeeefojkjjfkgdnchfnkdggpn/html/options.html
@@ -15,6 +25,12 @@ chrome.runtime.onInstalled.addListener(async (data) => {
 
     // 也可以直接使用 api 打开选项页面
     // chrome.runtime.openOptionsPage()
+  }
+
+  if (data.reason === chrome.runtime.OnInstalledReason.UPDATE) {
+    console.log(`更新完后打开选项 tab`)
+    // 也可以直接使用 api 打开选项页面
+    chrome.runtime.openOptionsPage()
   }
 
   // 存储颜色，需要配置 storage 权限

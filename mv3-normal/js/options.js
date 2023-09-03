@@ -23,6 +23,227 @@ document.getElementById('sendMessage').addEventListener('click', () => {
   })
 })
 
+document.getElementById('chromeApps').addEventListener('click', () => {
+  chrome.windows.create(
+    {
+      url: 'html/updateVersion.html',
+      type: 'popup',
+      width: 400,
+      height: 400,
+    },
+    (res) => {
+      console.log('windowCreate', res)
+    }
+  )
+})
+document
+  .getElementById('getPackageDirectoryEntry')
+  .addEventListener('click', () => {
+    chrome.runtime.getPackageDirectoryEntry((directoryEntry) => {
+      window.directoryEntry = directoryEntry
+      console.log('directoryEntry', directoryEntry)
+      const reader = directoryEntry.createReader()
+      reader.readEntries((entries) => {
+        // console.log('entries', entries)
+        for (let entry of entries) {
+          console.log('entry', entry)
+          if (entry.name === 'test.txt') {
+            window.entry = entry
+            entry.createWriter(
+              (writer) => {
+                window.writer = writer
+                writer.onwriteend = function () {
+                  console.log('写入完成')
+                }
+                writer.onerror = function (e) {
+                  console.log('写入失败', e)
+                }
+                console.log('writer', writer)
+                let text = '这是一段文本' + new Date().getTime()
+                let blob = new Blob([text], { type: 'text/plain' })
+                writer.write(blob)
+              },
+              (err) => console.log('获取 writer 失败', err)
+            )
+
+            entry.file(
+              (file) => {
+                window.file = file
+                console.log('file', file)
+              },
+              (err) => console.log('获取 file 失败', err)
+            )
+          }
+        }
+      })
+    })
+  })
+
+const verifyPermission = async (fileHandle, readWrite) => {
+  const options = {}
+  if (readWrite) {
+    options.mode = 'readwrite'
+  }
+  if ((await fileHandle.queryPermission(options)) === 'granted') {
+    console.log('verifyPermission 有权限')
+    return true
+  }
+  if ((await fileHandle.requestPermission(options)) === 'granted') {
+    console.log('verifyPermission 有申请到权限')
+    return true
+  }
+  console.log('verifyPermission 未申请到权限')
+  return false
+}
+
+document.getElementById('updateVersion').addEventListener('click', async () => {
+  const fileHandleList = await window.showOpenFilePicker()
+  const fileHandle = fileHandleList[0]
+  const file = await fileHandle.getFile()
+  const content = await file.text()
+  console.log('内容', content)
+
+  const manifestJson = JSON.parse(content)
+  manifestJson.version = '1.0.1'
+
+  const hasPermission = await verifyPermission(fileHandle)
+  if (hasPermission) {
+    console.log('有权限')
+  } else {
+    console.log('无权限')
+    return
+  }
+
+  try {
+    const writable = await fileHandle.createWritable()
+    await writable.write(JSON.stringify(manifestJson, null, 4))
+    await writable.close()
+
+    setTimeout(() => {
+      chrome.runtime.reload()
+    }, 500)
+  } catch (e) {
+    console.log('保存文件失败', e)
+  }
+})
+
+// 递归创建目录
+const recursiveCreateDir = async (parentDirHandle, pathArr) => {
+  const name = pathArr.shift()
+  if (name) {
+    // console.log('创建新目录', name)
+    const newDirHandle = await parentDirHandle.getDirectoryHandle(name, {
+      create: true,
+    })
+    return recursiveCreateDir(newDirHandle, pathArr)
+  } else {
+    return parentDirHandle
+  }
+}
+
+// 解压 zip 文件 https://www.misterma.com/archives/913/
+const extractZipFiles = async (zipFile, ignoreFirstDir = true) => {
+  // 选择要解压到的文件路径
+  const rootDirectoryHandle = await window.showDirectoryPicker({
+    mode: 'readwrite', // 直接把读和写权限都申请了，避免后续再写子文件时还要再次申请权限
+  })
+
+  const jsZip = await JSZip.loadAsync(zipFile)
+  console.log('读取 zip 文件成功', jsZip)
+  const zipEntries = Object.values(jsZip.files)
+  for await (let zipEntry of zipEntries) {
+    // console.log('zipEntry', zipEntry)
+
+    const pathArr = zipEntry.name.split('/').filter((item) => item)
+    if (ignoreFirstDir) {
+      pathArr.shift()
+    }
+
+    if (zipEntry.dir) {
+      // 递归创建目录
+      await recursiveCreateDir(rootDirectoryHandle, pathArr)
+    } else {
+      // 先提取文件名
+      const name = pathArr.pop()
+      // 然后再递归创建目录
+      const lastDirHandle = await recursiveCreateDir(
+        rootDirectoryHandle,
+        pathArr
+      )
+      // console.log('创建新的文件', name)
+      const fileHandle = await lastDirHandle.getFileHandle(name, {
+        create: true,
+      })
+      const blob = await zipEntry.async('blob')
+      const writable = await fileHandle.createWritable()
+      await writable.write(blob)
+      await writable.close()
+    }
+  }
+
+  console.log('更新成功')
+  setTimeout(() => {
+    chrome.runtime.reload()
+  }, 500)
+}
+
+// 解压本地zip文件
+document
+  .getElementById('extractLocalZipFiles')
+  .addEventListener('click', async () => {
+    // 选择要解压的文件
+    const fileHandleList = await window.showOpenFilePicker({
+      types: [
+        {
+          accept: {
+            'application/zip': ['.zip'],
+          },
+        },
+      ],
+    })
+    const zipFileHandle = fileHandleList[0]
+    console.log('zipFileHandle', zipFileHandle)
+    if (!zipFileHandle.name.endsWith('.zip')) {
+      return
+    }
+    const zipFile = await zipFileHandle.getFile()
+    console.log('zipFile', zipFile)
+
+    extractZipFiles(zipFile)
+  })
+
+// zip -qr mv3-normal.zip ./mv3-normal
+const remoteZipUrl = 'http://127.0.0.1:5500/mv3-normal/mv3-normal.zip'
+// 解压远程zip文件
+document
+  .getElementById('extractRemoteZipFiles')
+  .addEventListener('click', async () => {
+    const zipFileBlob = await fetch(remoteZipUrl).then((res) => res.blob())
+    console.log('zipFileBlob', zipFileBlob)
+    extractZipFiles(zipFileBlob)
+  })
+
+// 展示本地版本和远程版本
+window.onload = async () => {
+  let versionDiv = document.getElementById('versionDiv')
+  versionDiv.innerHTML = `当前版本：${chrome.runtime.getManifest().version}`
+
+  let remoteVersionDiv = document.getElementById('remoteVersionDiv')
+
+  const zipFileBlob = await fetch(remoteZipUrl).then((res) => res.blob())
+  const jsZip = await JSZip.loadAsync(zipFileBlob)
+  console.log('读取 zip 文件成功', jsZip)
+  const zipEntries = Object.values(jsZip.files)
+  for await (let zipEntry of zipEntries) {
+    if (zipEntry.name.endsWith('manifest.json')) {
+      console.log('找到清单文件', zipEntry)
+      const manifestContent = await zipEntry.async('text')
+      const manifestJson = JSON.parse(manifestContent)
+      remoteVersionDiv.innerHTML = `远程版本：${manifestJson.version}`
+    }
+  }
+}
+
 document.getElementById('showBadge').addEventListener('click', () => {
   chrome.action.setTitle({ title: 'options里修改标题' })
   chrome.action.setBadgeText({ text: '22' })
@@ -142,9 +363,7 @@ setTimeout(() => {
   const manifest = chrome.runtime.getManifest()
   console.log('options getManifest', manifest)
 
-  chrome.runtime.getPlatformInfo(
-    (platformInfo) => {
-      console.log('options getPlatformInfo', platformInfo)
-    }
-  )
+  chrome.runtime.getPlatformInfo((platformInfo) => {
+    console.log('options getPlatformInfo', platformInfo)
+  })
 }, 5000)

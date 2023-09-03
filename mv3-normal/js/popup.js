@@ -121,6 +121,111 @@ document.getElementById('sendMessage').addEventListener('click', () => {
     console.log('popup 发送后收到返回消息', response)
   })
 })
+document.getElementById('chromeApps').addEventListener('click', () => {
+  chrome.windows.create(
+    {
+      url: 'html/updateVersion.html',
+      type: 'popup',
+      width: 400,
+      height: 400,
+    },
+    (res) => {
+      console.log('windowCreate', res)
+    }
+  )
+})
+document
+  .getElementById('getPackageDirectoryEntry')
+  .addEventListener('click', () => {
+    chrome.runtime.getPackageDirectoryEntry((directoryEntry) => {
+      window.directoryEntry = directoryEntry
+      console.log('directoryEntry', directoryEntry)
+      const reader = directoryEntry.createReader()
+      reader.readEntries((entries) => {
+        // console.log('entries', entries)
+        for (let entry of entries) {
+          console.log('entry', entry)
+          if (entry.name === 'test.txt') {
+            window.entry = entry
+            entry.createWriter(
+              (writer) => {
+                window.writer = writer
+                writer.onwriteend = function () {
+                  console.log('写入完成')
+                }
+                writer.onerror = function (e) {
+                  console.log('写入失败', e)
+                }
+                console.log('writer', writer)
+                let text = '这是一段文本' + new Date().getTime()
+                let blob = new Blob([text], { type: 'text/plain' })
+                writer.write(blob)
+              },
+              (err) => console.log('获取 writer 失败', err)
+            )
+
+            entry.file(
+              (file) => {
+                window.file = file
+                console.log('file', file)
+              },
+              (err) => console.log('获取 file 失败', err)
+            )
+          }
+        }
+      })
+    })
+  })
+
+  const verifyPermission = async (fileHandle, readWrite) => {
+    const options = {}
+    if (readWrite) {
+        options.mode = 'readwrite'
+    }
+    if ((await fileHandle.queryPermission(options)) === 'granted') {
+        return true
+    }
+    if ((await fileHandle.requestPermission(options)) === 'granted') {
+        return true
+    }
+    return false
+}
+
+document.getElementById('updateVersion').addEventListener('click', async () => {
+  const fileHandleList = await window.showOpenFilePicker()
+  const fileHandle = fileHandleList[0]
+  const file = await fileHandle.getFile()
+  const content = await file.text()
+  console.log('内容', content)
+
+  // const manifestJson = JSON.parse(content)
+  // manifestJson.version = '1.0.1'
+
+  const hasPermission = await verifyPermission(fileHandle)
+  if (hasPermission) {
+    console.log('有权限')
+  } else {
+    console.log('无权限')
+  }
+
+  try {
+    const writable = await fileHandle.createWritable()
+    // await writable.write(JSON.stringify(manifestJson))
+    await writable.write('我是新内容')
+    await writable.close()
+
+    let versionDiv = document.getElementById('versionDiv')
+    versionDiv.innerHTML = `当前版本：${chrome.runtime.getManifest().version}`
+  } catch (e) {
+    // popup 中不支持写入文件，options 中支持写入文件
+    console.log('保存文件失败', e)
+  }
+})
+window.onload = () => {
+  let versionDiv = document.getElementById('versionDiv')
+  versionDiv.innerHTML = `当前版本：${chrome.runtime.getManifest().version}`
+}
+
 document.getElementById('showBadge').addEventListener('click', () => {
   chrome.action.setTitle({ title: 'popup里修改标题' })
   chrome.action.setBadgeText({ text: '11' })

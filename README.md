@@ -28,7 +28,11 @@ Chrome 插件开发学习笔记
 - [CRXJS](https://github.com/crxjs/chrome-extension-tools/tree/main/packages/vite-plugin)
 - [chrome-extension-vite-react](https://github.com/spiderT/chrome-extension-vite-react)
 - [ajax-proxy](https://github.com/g0ngjie/ajax-proxy)
+- [Ajax-hook](https://github.com/wendux/Ajax-hook)
 - [做个Chrome小扩展mock请求从此测试如飞](https://juejin.cn/post/6955828684594872333)
+- [使用 Chrome Extension Manifest 3 来处理 CORS 限制](https://github.com/carl-jin/blogs-new/blob/569c4bbe323380e6720ccf1831426ef4334b899d/content/posts/chrome-extension-cors.md)
+- [Chrome 扩展 V3 中文文档](https://doc.yilijishu.info/chrome/)
+- [Chrome 拖拽文件系统](https://blog.mn886.net/chenjianhua/show/86cfc389a52c/index.html)
 
 ## manifest.json
 
