@@ -294,7 +294,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 )
 
 chrome.runtime.onConnect.addListener((port) => {
-  console.log('chrome.runtime.onConnect', port)
+  console.log('background chrome.runtime.onConnect', port)
   port.onMessage.addListener((msg) => {
     console.log('background onMessage', msg)
     port.postMessage('我是来自 background 的消息')

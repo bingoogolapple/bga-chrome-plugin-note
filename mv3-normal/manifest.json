@@ -3,6 +3,7 @@
     "name": "bga-chrome-plugin-note-v3",
     "description": "Chrome 插件开发学习笔记",
     "version": "1.0.0",
+    "author": "bingoogolapple@gmail.com",
     "icons": {
         "16": "images/16.png",
         "32": "images/32.png",

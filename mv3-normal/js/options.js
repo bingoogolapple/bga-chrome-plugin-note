@@ -6,7 +6,7 @@ window.onload = () => {
     })
 }
 
-let port = chrome.runtime.connect()
+let port = chrome.runtime.connect({name: 'options'})
 console.log('options chrome.runtime.onConnect', port)
 port.onMessage.addListener((msg) => {
   console.log('options onMessage', msg)
@@ -35,6 +35,14 @@ document.getElementById('chromeApps').addEventListener('click', () => {
       console.log('windowCreate', res)
     }
   )
+  // 新标签打开
+  // chrome.tabs.create({ url: chrome.runtime.getURL('html/updateVersion.html') })
+  // 新标签打开
+  // chrome.tabs.create({ url: 'html/updateVersion.html' })
+  // 新标签打开
+  // window.open(chrome.runtime.getURL('/html/updateVersion.html'))
+  // 新标签打开
+  // window.open('/html/updateVersion.html')
 })
 document
   .getElementById('getPackageDirectoryEntry')
@@ -341,6 +349,7 @@ function constructOptions(buttonColors) {
 const presetButtonColors = ['#3aa757', '#e8453c', '#f9bb2d', '#4688f1']
 constructOptions(presetButtonColors)
 
+// 监听储存变化
 chrome.storage.onChanged.addListener((changes, namespace) => {
   console.log('changes', changes)
   console.log('namespace', namespace)

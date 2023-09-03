@@ -1,4 +1,4 @@
-let port = chrome.runtime.connect()
+let port = chrome.runtime.connect({name: 'devtools-panel1'})
 console.log('devtools-panel1 chrome.runtime.onConnect', port)
 port.onMessage.addListener((msg) => {
   console.log('devtools-panel1 onMessage', msg)

@@ -1,7 +1,7 @@
 import { testChrome } from '../../utils/chrome-utils'
 testChrome('devtools')
 
-const port = chrome.runtime.connect()
+const port = chrome.runtime.connect({name: 'devtools'})
 console.log('devtools chrome.runtime.onConnect', port)
 port.onMessage.addListener((msg: any) => {
   console.log('devtools port.onMessage', msg)

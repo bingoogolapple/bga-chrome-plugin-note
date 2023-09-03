@@ -13,7 +13,9 @@
     "release": "rimraf dist && tsc && cross-env CRX_ENV=production pnpm build"
   },
   "dependencies": {
+    "ajax-hook": "^3.0.1",
     "antd": "^5.3.3",
+    "msw": "^1.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.10.0"

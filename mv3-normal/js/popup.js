@@ -8,7 +8,7 @@ window.onload = () => {
     })
 }
 
-let port = chrome.runtime.connect()
+let port = chrome.runtime.connect({name: 'popup'})
 console.log('popup chrome.runtime.onConnect', port)
 port.onMessage.addListener((msg) => {
   console.log('popup onMessage', msg)
@@ -125,7 +125,7 @@ document.getElementById('chromeApps').addEventListener('click', () => {
   chrome.windows.create(
     {
       url: 'html/updateVersion.html',
-      type: 'popup',
+      type: 'popup', // normal: 新窗口+有标签，popup: 新窗口+无标签，panel: 新窗口+无标签
       width: 400,
       height: 400,
     },
@@ -133,6 +133,14 @@ document.getElementById('chromeApps').addEventListener('click', () => {
       console.log('windowCreate', res)
     }
   )
+  // 新标签打开
+  // chrome.tabs.create({ url: chrome.runtime.getURL('html/updateVersion.html') })
+  // 新标签打开
+  // chrome.tabs.create({ url: 'html/updateVersion.html' })
+  // 新标签打开
+  // window.open(chrome.runtime.getURL('/html/updateVersion.html'))
+  // 新标签打开
+  // window.open('/html/updateVersion.html')
 })
 document
   .getElementById('getPackageDirectoryEntry')
@@ -177,20 +185,21 @@ document
     })
   })
 
-  const verifyPermission = async (fileHandle, readWrite) => {
-    const options = {}
-    if (readWrite) {
-        options.mode = 'readwrite'
-    }
-    if ((await fileHandle.queryPermission(options)) === 'granted') {
-        return true
-    }
-    if ((await fileHandle.requestPermission(options)) === 'granted') {
-        return true
-    }
-    return false
+const verifyPermission = async (fileHandle, readWrite) => {
+  const options = {}
+  if (readWrite) {
+    options.mode = 'readwrite'
+  }
+  if ((await fileHandle.queryPermission(options)) === 'granted') {
+    return true
+  }
+  if ((await fileHandle.requestPermission(options)) === 'granted') {
+    return true
+  }
+  return false
 }
 
+// popup 中不支持写入文件，options 中支持写入文件
 document.getElementById('updateVersion').addEventListener('click', async () => {
   const fileHandleList = await window.showOpenFilePicker()
   const fileHandle = fileHandleList[0]

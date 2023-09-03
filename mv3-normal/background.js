@@ -31,24 +31,55 @@ chrome.runtime.onInstalled.addListener(async (data) => {
     console.log(`更新完后打开选项 tab`)
     // 也可以直接使用 api 打开选项页面
     // chrome.runtime.openOptionsPage()
+
+    // chrome.windows.create(
+    //   {
+    //     url: 'html/updateVersion.html',
+    //     type: 'popup',
+    //     width: 400,
+    //     height: 400,
+    //   },
+    //   (res) => {
+    //     console.log('windowCreate', res)
+    //   }
+    // )
   }
 
   // 存储颜色，需要配置 storage 权限
+  // 如果用户启用的账号同步功能，储存的数据会同步到用户登录的任何 chrome 浏览器中。如果用户禁用了同步，则该 api 功能与 local 类似。储存上限为 100KB，每一条的上限是 8KB，最多能存 512 条数据。并且一段时间内最大写入数也有限制，具体详见sync限制。可以用于储存一些需要跨浏览器储存的数据。
   chrome.storage.sync.set({ color }, () => {
     console.log('2-Default background color set to %cgreen', `color: ${color}`)
   })
+  // 本地储存，卸载插件时会清除，储存上限为5MB
+  // chrome.storage.sync.set({ color }, () => {
+  //   console.log('2-Default background color set to %cgreen', `color: ${color}`)
+  // })
   console.log('1-Default background color set to %cgreen', `color: ${color}`)
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log('background 收到消息', request, sender)
+    // 这里是同步调用的 sendResponse，如果想要在异步中调用 sendResponse，则需要在 onMessage 的事件处理函数中添加 return true
+    // 如果多个页面侦听 onMessage 事件，则只有第一个调用 sendResponse 特定事件的页面才能成功发送响应。其他对该事件的所有其他响应事件将被忽略
     sendResponse('我是来自 background 的响应消息')
 
+    // 从插件向所有接收方发消息
     chrome.runtime.sendMessage(
       { msg: '我是来自 background 的消息' },
       (response) => {
         console.log('background 发送后收到返回消息', response)
       }
     )
+    // 从插件向 content_scripts 发送请求，但是要指定将请求发送到哪个选项卡
+    ;(async () => {
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
+      })
+      const response = await chrome.tabs.sendMessage(tab.id, {
+        greeting: 'hello',
+      })
+      console.log(response)
+    })()
   })
 
   console.log('初始化完成')
@@ -65,6 +96,15 @@ function reddenPage() {
 //         target: { tabId: tab.id },
 //         func: reddenPage,
 //     })
+// })
+
+// 弹出窗口也可以通过调用动态设置
+// chrome.storage.local.get('signed_in', (data) => {
+//   if (data.signed_in) {
+//     chrome.action.setPopup({ popup: 'popup.html' })
+//   } else {
+//     chrome.action.setPopup({ popup: 'popup_sign_in.html' })
+//   }
 // })
 
 // chrome.action.onClicked.addListener(async () => {
@@ -175,10 +215,13 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         }
       )
     } else if (info.menuItemId === 'change-color-js-files') {
+      // 内容脚本存在于一个孤立的世界中，允许内容脚本对其 JavaScript 环境进行更改，而不会与页面或其他扩展的内容脚本发生冲突
+      // 动态注入的脚本可以通过设置world属性为MAIN直接进入网页文档，而不是独立的环境。这时在主页面就可以访问到脚本的变量等信息
       chrome.scripting.executeScript(
         {
           target: { tabId: tab.id },
           files: ['js/changePageColor.js'],
+          // world: "MAIN",
         },
         (injectionResults) => {
           for (const frameResult of injectionResults) {
@@ -186,6 +229,20 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
           }
         }
       )
+
+      // 在 background 中使用 RegisteredContentScript，并且设置 world: 'MAIN'，从而将脚本注入全局
+      // chrome.scripting.registerContentScripts([
+      //   {
+      //       "id": "csInMainWorld",
+      //       "js": ['js/contentScript.js'],
+      //       "matches": [
+      //         "<all_urls>"
+      //       ],
+      //       "allFrames": true,
+      //       "world": "MAIN",
+      //       "runAt": "document_start"
+      //   }
+      // ])
     } else if (info.menuItemId === 'change-color-css-code') {
       chrome.scripting.insertCSS({
         target: { tabId: tab.id },
@@ -217,9 +274,22 @@ function setPageBackgroundColor(arg1, arg2) {
   })
 }
 
-chrome.omnibox.onInputEntered.addListener((text) => {
+chrome.omnibox.onInputEntered.addListener(async (text) => {
   console.log('onInputEntered', text)
-  // chrome.tabs.update(tabId, { url: 'xxxxxx'})
+  const url = `https://www.baidu.com/s?wd=${text}`
+  let [currentTab] = await chrome.tabs.query({
+    active: true,
+    currentWindow: true,
+  })
+  if (!currentTab.id) {
+    return
+  }
+  console.log('当前 tab', JSON.stringify(currentTab))
+  if (currentTab.url === 'chrome://newtab/') {
+    chrome.tabs.update(tabId, { url })
+  } else {
+    chrome.tabs.create({ url })
+  }
 })
 chrome.omnibox.onInputChanged.addListener((text, suggest) => {
   console.log('onInputChanged', text)
@@ -314,13 +384,16 @@ function updateIcon() {
 //   ['blocking']
 // )
 
+// 长链接通信
 chrome.runtime.onConnect.addListener((port) => {
-  console.log('chrome.runtime.onConnect', port)
+  console.log('background chrome.runtime.onConnect', port)
   port.onMessage.addListener((msg) => {
     console.log('background onMessage', msg)
     port.postMessage('我是来自 background 的消息')
   })
 })
+// 从插件主动向 content_scripts 发送长连接请求时需要指定要连接到哪个选项卡
+// const port = chrome.tabs.connect(tabId, { name: "background" })
 
 // setTimeout(() => {
 //   console.log('background chrome.runtime.id', chrome.runtime.id)
@@ -337,8 +410,6 @@ chrome.runtime.onConnect.addListener((port) => {
 //     }
 //   )
 // }, 3000);
-
-
 
 // 这种方式只能监听插件自身的网络请求
 // const initFetchListener = () => {
@@ -377,7 +448,6 @@ chrome.runtime.onConnect.addListener((port) => {
 // }
 // initFetchListener()
 
-
 // chrome.declarativeContent.onPageChanged.removeRules(undefined, () => {
 //   chrome.declarativeContent.onPageChanged.addRules([
 //     {
@@ -394,7 +464,6 @@ chrome.runtime.onConnect.addListener((port) => {
 //   ])
 // })
 
-
 // https://developer.chrome.com/docs/extensions/reference/declarativeNetRequest/
 const dynamicRule1 = {
   id: 20230415,
@@ -403,20 +472,20 @@ const dynamicRule1 = {
   //   type: "block"
   // },
   action: {
-    type: "modifyHeaders",
+    type: 'modifyHeaders',
     requestHeaders: [
       {
-        operation: "set",
+        operation: 'set',
         header: 'x-test-req-key-1',
-        value: 'x-test-req-value-1'
-      }
+        value: 'x-test-req-value-1',
+      },
     ],
     responseHeaders: [
       {
-        operation: "set",
+        operation: 'set',
         header: 'x-test-resp-key-1',
-        value: 'x-test-resp-value-1'
-      }
+        value: 'x-test-resp-value-1',
+      },
     ],
   },
   condition: {
@@ -426,20 +495,21 @@ const dynamicRule1 = {
 }
 chrome.declarativeNetRequest.getDynamicRules((rules) => {
   console.log('getDynamicRules', rules)
-  chrome.declarativeNetRequest.updateDynamicRules({
-    // 插件卸载后规则还会存在，每次添加前需要将之前的规则删除
-    removeRuleIds: rules.map(rule => rule.id),
-    addRules: [dynamicRule1]
-  }, (args) => {
-    console.log('updateDynamicRules', args)
-  })
+  chrome.declarativeNetRequest.updateDynamicRules(
+    {
+      // 插件卸载后规则还会存在，每次添加前需要将之前的规则删除
+      removeRuleIds: rules.map((rule) => rule.id),
+      addRules: [dynamicRule1],
+    },
+    (args) => {
+      console.log('updateDynamicRules', args)
+    }
+  )
 })
 // 需要添加 declarativeNetRequestFeedback 权限
-chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(
-  (info) => {
-    console.log('declarativeNetRequest.onRuleMatchedDebug', info)
-  }
-)
+chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((info) => {
+  console.log('declarativeNetRequest.onRuleMatchedDebug', info)
+})
 chrome.declarativeNetRequest.getEnabledRulesets((rulesetIds) => {
   console.log('getEnabledRulesets', rulesetIds)
 })

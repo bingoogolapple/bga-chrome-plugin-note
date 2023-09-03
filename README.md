@@ -33,6 +33,12 @@ Chrome 插件开发学习笔记
 - [使用 Chrome Extension Manifest 3 来处理 CORS 限制](https://github.com/carl-jin/blogs-new/blob/569c4bbe323380e6720ccf1831426ef4334b899d/content/posts/chrome-extension-cors.md)
 - [Chrome 扩展 V3 中文文档](https://doc.yilijishu.info/chrome/)
 - [Chrome 拖拽文件系统](https://blog.mn886.net/chenjianhua/show/86cfc389a52c/index.html)
+- [油猴脚本重写fetch和xhr请求](https://mp.weixin.qq.com/s/9_R-MBEjyXDR6Sn_UR08mw)
+- [开源一款好用的AJAX和FETCH拦截器](https://mp.weixin.qq.com/s/pjFfszXvhuO0-H1KB_Rhvw)
+- [报告：我想拦截浏览器的请求](https://mp.weixin.qq.com/s/TI6ru7OIcFa6Vo9lVGavYA)
+- [浏览器插件开发教程文档](https://www.yuque.com/tuntun-nozomi/gurht0)
+- [浏览器扩展程序软件开发工具包](https://github.com/PlasmoHQ/plasmo)
+- [浏览器主题插件](https://juejin.cn/post/7089059520042926088)
 
 ## manifest.json
 

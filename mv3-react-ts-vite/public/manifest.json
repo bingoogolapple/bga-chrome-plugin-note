@@ -3,6 +3,7 @@
     "name": "mv3-react-ts-vite",
     "description": "Chrome 插件开发学习笔记",
     "version": "1.0.0",
+    "author": "bingoogolapple@gmail.com",
     "icons": {
         "16": "images/16.png",
         "32": "images/32.png",
@@ -10,18 +11,24 @@
         "128": "images/128.png"
     },
     "permissions": [
+        "debugger",
         "storage",
+        "unlimitedStorage",
         "activeTab",
         "scripting",
         "cookies",
         "contextMenus",
         "notifications",
         "alarms",
+        "tts",
         "webRequest",
-        "declarativeContent"
+        "declarativeContent",
+        "declarativeNetRequest",
+        "declarativeNetRequestFeedback"
     ],
     "host_permissions": [
-        "<all_urls>"
+        "http://*/*",
+        "https://*/*"
     ],
     "background": {
         "service_worker": "background.js",
@@ -44,7 +51,7 @@
     "content_scripts": [
         {
             "matches": [
-                "https://www.baidu.com/*"
+                "<all_urls>"
             ],
             "css": [
                 "assets/content.css"
@@ -53,13 +60,13 @@
                 "assets/content.js"
             ],
             "all_frames": true,
-            "run_at": "document_end"
+            "run_at": "document_start"
         }
     ],
     "web_accessible_resources": [
         {
             "matches": [
-                "https://www.baidu.com/*"
+                "<all_urls>"
             ],
             "resources": [
                 "assets/inject.js"
@@ -81,5 +88,14 @@
     "devtools_page": "src/entries/devtools/devtools.html",
     "omnibox": {
         "keyword": "bga"
+    },
+    "declarative_net_request": {
+        "rule_resources": [
+            {
+                "id": "ruleset_1",
+                "enabled": true,
+                "path": "rules_1.json"
+            }
+        ]
     }
 }

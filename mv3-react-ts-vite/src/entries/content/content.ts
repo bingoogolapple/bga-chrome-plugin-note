@@ -6,7 +6,7 @@ testChrome('content')
 
 // 动态加载文件时需要在 manifest.json -> web_accessible_resources 中配置
 let jsPath = 'assets/inject.js'
-let temp = document.createElement('script')
-temp.src = chrome.runtime.getURL(jsPath)
-temp.setAttribute('type', 'text/javascript')
-document.head.appendChild(temp)
+const script = document.createElement('script')
+script.setAttribute('type', 'text/javascript')
+script.setAttribute('src', chrome.runtime.getURL(jsPath))
+document.documentElement.appendChild(script)

@@ -24,4 +24,14 @@ chrome.runtime.onConnect.addListener((port) => {
   })
 })
 
+// chrome.debugger.onEvent.addListener((source, method, params) => {
+//   // console.log('source', source, 'method', method, 'params', params)
+//   console.log('method', method)
+//   if (method === 'Network.responseReceived') {
+//     console.log('Response received:', params?.response?.url);
+//     // Perform your desired action with the response data
+//   }
+// });
+
+
 // import '../../../scripts/crx-hmr-plugin/injectBackground'

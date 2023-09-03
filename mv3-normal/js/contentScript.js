@@ -1,4 +1,4 @@
-console.log('来自 contentScript.js 的日志11222')
+console.log('来自 contentScript.js 的日志1122233333')
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('content 收到消息', request, sender)
   sendResponse('我是来自 content 的响应消息')
