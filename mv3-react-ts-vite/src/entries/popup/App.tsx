@@ -25,7 +25,24 @@ function App() {
     //         }
     //     })
     // }, [])
-    return <h1>popup</h1>
+    return (
+        <div>
+            <h1>popup</h1>
+            <button onClick={() => {
+                chrome.windows.create(
+                    {
+                        url: 'src/entries/update-version/update-version.html',
+                        type: 'popup',
+                        width: 400,
+                        height: 400,
+                    },
+                    (res) => {
+                        console.log('windowCreate', res)
+                    }
+                )
+            }}>检查更新</button>
+        </div>
+    )
 }
 
 export default App

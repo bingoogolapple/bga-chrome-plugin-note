@@ -8,5 +8,5 @@ pnpm create vite mv3-react-ts-vite
 
 cd mv3-react-ts-vite
 pnpm install
-pnpm run dev
+pnpm dev
 ```

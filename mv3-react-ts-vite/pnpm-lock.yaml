@@ -13,6 +13,7 @@ specifiers:
   chokidar: ^3.5.3
   concurrently: ^7.6.0
   cross-env: ^7.0.3
+  jszip: ^3.10.1
   less: ^4.1.3
   msw: ^1.0.0
   react: ^18.2.0
@@ -29,6 +30,7 @@ specifiers:
 dependencies:
   ajax-hook: 3.0.1
   antd: 5.3.3_biqbaboplfbrettd7655fr4n2y
+  jszip: 3.10.1
   msw: 1.0.0_typescript@4.9.5
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
@@ -1200,6 +1202,10 @@ packages:
       toggle-selection: 1.0.6
     dev: false
 
+  /core-util-is/1.0.3:
+    resolution: {integrity: sha1-pgQtNjTCsn6TKPg3uWX6yDgI24U=, tarball: core-util-is/download/core-util-is-1.0.3.tgz}
+    dev: false
+
   /cross-env/7.0.3:
     resolution: {integrity: sha1-hlJkspZ33AFbqEGJGJZd0jL8VM8=, tarball: cross-env/download/cross-env-7.0.3.tgz}
     engines: {node: '>=10.14', npm: '>=6', yarn: '>=1'}
@@ -1495,6 +1501,10 @@ packages:
     dev: true
     optional: true
 
+  /immediate/3.0.6:
+    resolution: {integrity: sha1-nbHb0Pr43m++D13V5Wu2BigN5ps=, tarball: immediate/download/immediate-3.0.6.tgz}
+    dev: false
+
   /inherits/2.0.4:
     resolution: {integrity: sha1-D6LGT5MpF8NDOg3tVTY6rjdBa3w=, tarball: inherits/download/inherits-2.0.4.tgz}
     dev: false
@@ -1595,6 +1605,10 @@ packages:
     resolution: {integrity: sha1-4SIvRt3ahd6tD9HJ3xMXYOd3VcE=, tarball: is-what/download/is-what-3.14.1.tgz}
     dev: true
 
+  /isarray/1.0.0:
+    resolution: {integrity: sha1-u5NdSFgsuhaMBoNJV6VKPgcSTxE=, tarball: isarray/download/isarray-1.0.0.tgz}
+    dev: false
+
   /isexe/2.0.0:
     resolution: {integrity: sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=, tarball: isexe/download/isexe-2.0.0.tgz}
     dev: true
@@ -1625,6 +1639,15 @@ packages:
     hasBin: true
     dev: true
 
+  /jszip/3.10.1:
+    resolution: {integrity: sha1-NK7nDrGOofrsL1iSCKFX0f6wkcI=, tarball: jszip/download/jszip-3.10.1.tgz}
+    dependencies:
+      lie: 3.3.0
+      pako: 1.0.11
+      readable-stream: 2.3.8
+      setimmediate: 1.0.5
+    dev: false
+
   /less/4.1.3:
     resolution: {integrity: sha1-F1vp3cv5slAXPgoAtNaSClt3AkY=, tarball: less/download/less-4.1.3.tgz}
     engines: {node: '>=6'}
@@ -1644,6 +1667,12 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /lie/3.3.0:
+    resolution: {integrity: sha1-3Pgt7lRfRgdNryAMfBxaCOD0D2o=, tarball: lie/download/lie-3.3.0.tgz}
+    dependencies:
+      immediate: 3.0.6
+    dev: false
 
   /lodash/4.17.21:
     resolution: {integrity: sha1-Z5WRxWTDv/quhFTPCz3zcMPWkRw=, tarball: lodash/download/lodash-4.17.21.tgz}
@@ -1844,6 +1873,10 @@ packages:
     resolution: {integrity: sha1-50Lkvad2kto+ymmO9b+sYtn7oG4=, tarball: outvariant/download/outvariant-1.4.0.tgz}
     dev: false
 
+  /pako/1.0.11:
+    resolution: {integrity: sha1-bJWZ00DVTf05RjgCUqNXBaa5kr8=, tarball: pako/download/pako-1.0.11.tgz}
+    dev: false
+
   /param-case/3.0.4:
     resolution: {integrity: sha1-fRf+SqEr3jTUp32RrPtiGcqtAcU=, tarball: param-case/download/param-case-3.0.4.tgz}
     dependencies:
@@ -1906,6 +1939,10 @@ packages:
       picocolors: 1.0.0
       source-map-js: 1.0.2
     dev: true
+
+  /process-nextick-args/2.0.1:
+    resolution: {integrity: sha1-eCDZsWEgzFXKmud5JoCufbptf+I=, tarball: process-nextick-args/download/process-nextick-args-2.0.1.tgz}
+    dev: false
 
   /prr/1.0.1:
     resolution: {integrity: sha1-0/wRS6BplaRexok/SEzrHXj19HY=, tarball: prr/download/prr-1.0.1.tgz}
@@ -2498,6 +2535,18 @@ packages:
       loose-envify: 1.4.0
     dev: false
 
+  /readable-stream/2.3.8:
+    resolution: {integrity: sha1-kRJegEK7obmIf0k0X2J3Anzovps=, tarball: readable-stream/download/readable-stream-2.3.8.tgz}
+    dependencies:
+      core-util-is: 1.0.3
+      inherits: 2.0.4
+      isarray: 1.0.0
+      process-nextick-args: 2.0.1
+      safe-buffer: 5.1.2
+      string_decoder: 1.1.1
+      util-deprecate: 1.0.2
+    dev: false
+
   /readable-stream/3.6.2:
     resolution: {integrity: sha1-VqmzbqllwAxak+8x6xEaDxEFaWc=, tarball: readable-stream/download/readable-stream-3.6.2.tgz}
     engines: {node: '>= 6'}
@@ -2568,6 +2617,10 @@ packages:
     dependencies:
       tslib: 2.5.0
 
+  /safe-buffer/5.1.2:
+    resolution: {integrity: sha1-mR7GnSluAxN0fVm9/St0XDX4go0=, tarball: safe-buffer/download/safe-buffer-5.1.2.tgz}
+    dev: false
+
   /safe-buffer/5.2.1:
     resolution: {integrity: sha1-Hq+fqb2x/dTsdfWPnNtOa3gn7sY=, tarball: safe-buffer/download/safe-buffer-5.2.1.tgz}
     dev: false
@@ -2605,6 +2658,10 @@ packages:
 
   /set-cookie-parser/2.6.0:
     resolution: {integrity: sha1-Exkh5Q9i/xpmpGHX1i17IdXRWlE=, tarball: set-cookie-parser/download/set-cookie-parser-2.6.0.tgz}
+    dev: false
+
+  /setimmediate/1.0.5:
+    resolution: {integrity: sha1-KQy7Iy4waULX1+qbg3Mqt4VvgoU=, tarball: setimmediate/download/setimmediate-1.0.5.tgz}
     dev: false
 
   /shebang-command/2.0.0:
@@ -2664,6 +2721,12 @@ packages:
       emoji-regex: 8.0.0
       is-fullwidth-code-point: 3.0.0
       strip-ansi: 6.0.1
+
+  /string_decoder/1.1.1:
+    resolution: {integrity: sha1-nPFhG6YmhdcDCunkujQUnDrwP8g=, tarball: string_decoder/download/string_decoder-1.1.1.tgz}
+    dependencies:
+      safe-buffer: 5.1.2
+    dev: false
 
   /string_decoder/1.3.0:
     resolution: {integrity: sha1-QvEUWUpGzxqOMLCoT1bHjD7awh4=, tarball: string_decoder/download/string_decoder-1.3.0.tgz}

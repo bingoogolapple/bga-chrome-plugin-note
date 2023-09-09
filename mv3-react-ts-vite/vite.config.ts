@@ -23,13 +23,18 @@ export default defineConfig(async ({ mode }) => {
     }),
   ]
   if (isDev) {
-    plugins.push(cxrHmrPlugin({ mode, viteDirname: __dirname }))
+    plugins.push(cxrHmrPlugin({ mode }))
   }
 
   const crxBuildConfig = getCrxBuildConfig({
     isDev,
     mode,
-    viteDirname: __dirname,
+    pageInput: {
+      'update-version': resolve(
+        process.cwd(),
+        'src/entries/update-version/update-version.html'
+      ),
+    }
   })
 
   return {
