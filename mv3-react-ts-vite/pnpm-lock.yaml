@@ -8,6 +8,7 @@ specifiers:
   '@types/watch': ^1.0.2
   '@types/ws': ^8.5.4
   '@vitejs/plugin-react-swc': ^3.2.0
+  '@webcontainer/api': ^1.1.5
   ajax-hook: ^3.0.1
   antd: ^5.3.3
   chokidar: ^3.5.3
@@ -26,8 +27,11 @@ specifiers:
   vite-plugin-imp: ^2.3.1
   watch: ^1.0.2
   ws: ^8.13.0
+  xterm: ^5.3.0
+  xterm-addon-fit: ^0.8.0
 
 dependencies:
+  '@webcontainer/api': 1.1.5
   ajax-hook: 3.0.1
   antd: 5.3.3_biqbaboplfbrettd7655fr4n2y
   jszip: 3.10.1
@@ -35,6 +39,8 @@ dependencies:
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-router-dom: 6.10.0_biqbaboplfbrettd7655fr4n2y
+  xterm: 5.3.0
+  xterm-addon-fit: 0.8.0_xterm@5.3.0
 
 devDependencies:
   '@types/chrome': 0.0.228
@@ -884,6 +890,10 @@ packages:
       '@swc/core': 1.3.42
       vite: 4.2.1_6yunucjcl4g6chxuif73yri7xi
     dev: true
+
+  /@webcontainer/api/1.1.5:
+    resolution: {integrity: sha1-uxmDKnUYDBnTeKpPtgZ4zsdFBZM=, tarball: '@webcontainer/api/download/@webcontainer/api-1.1.5.tgz'}
+    dev: false
 
   /@xmldom/xmldom/0.8.10:
     resolution: {integrity: sha1-oTN8pCaqYc75/hW1so40CnL2+pk=, tarball: '@xmldom/xmldom/download/@xmldom/xmldom-0.8.10.tgz'}
@@ -2986,6 +2996,18 @@ packages:
       utf-8-validate:
         optional: true
     dev: true
+
+  /xterm-addon-fit/0.8.0_xterm@5.3.0:
+    resolution: {integrity: sha1-SMqZAVOFFBkY+VXKeBnoXzaR018=, tarball: xterm-addon-fit/download/xterm-addon-fit-0.8.0.tgz}
+    peerDependencies:
+      xterm: ^5.0.0
+    dependencies:
+      xterm: 5.3.0
+    dev: false
+
+  /xterm/5.3.0:
+    resolution: {integrity: sha1-hn2vnMgm89RbU3cyCqvZlssPzkY=, tarball: xterm/download/xterm-5.3.0.tgz}
+    dev: false
 
   /y18n/5.0.8:
     resolution: {integrity: sha1-f0k00PfKjFb5UxSTndzS3ZHOHVU=, tarball: y18n/download/y18n-5.0.8.tgz}

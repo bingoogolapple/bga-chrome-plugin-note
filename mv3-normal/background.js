@@ -14,6 +14,7 @@ chrome.runtime.onInstalled.addListener(async (data) => {
   //   console.log('directoryEntry', directoryEntry)
   // })
   console.log('chrome.runtime', chrome.runtime)
+  console.log('插件ID', chrome.runtime.id)
   console.log('getManifest', chrome.runtime.getManifest())
   console.log('selfManagement', chrome.management.getSelf())
   // {"CHROME_UPDATE":"chrome_update","INSTALL":"install","SHARED_MODULE_UPDATE":"shared_module_update","UPDATE":"update"}

@@ -13,7 +13,7 @@ chrome.runtime.onInstalled.addListener(async (data: any) => {
     // chrome.runtime.openOptionsPage()
   }
 
-  console.log('background 初始化完成')
+  console.log('background 初始化完成', chrome.runtime.id)
 })
 
 chrome.runtime.onConnect.addListener((port) => {
