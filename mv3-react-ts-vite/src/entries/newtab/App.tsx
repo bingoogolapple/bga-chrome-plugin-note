@@ -9,6 +9,7 @@ import {
 import { ConfigProvider, Spin, Layout, Menu } from 'antd'
 import zhCN from 'antd/lib/locale/zh_CN'
 import NavLinkA from '@/components/NavLinkA'
+import { useShowCheckUpdate } from '../update-version/App'
 const First = React.lazy(() => import('./First'))
 const Second = React.lazy(() => import('./Second'))
 
@@ -57,6 +58,9 @@ const TopMenu: React.FC = () => {
 }
 
 function App() {
+
+  useShowCheckUpdate()
+
   return (
     <ConfigProvider locale={zhCN}>
       <Router>

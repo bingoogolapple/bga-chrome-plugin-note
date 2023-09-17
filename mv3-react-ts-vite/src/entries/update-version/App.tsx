@@ -61,10 +61,10 @@ const extractZipFiles = async (zipFileBlob: Blob, ignoreFirstDir = true) => {
         }
     }
 
-    console.log('更新成功')
+    console.log('更新成功，1s 后将自动重新加载插件')
     setTimeout(() => {
         chrome.runtime.reload()
-    }, 500)
+    }, 1000)
 }
 
 const getLatestVersion = async (zipFileBlob: Blob) => {
@@ -82,17 +82,16 @@ const getLatestVersion = async (zipFileBlob: Blob) => {
     return ''
 }
 
-function App() {
+const useLatestVersion = () => {
     const [zipFileBlob, setZipFileBlob] = useState<Blob>()
     const [latestVersion, setLatestVersion] = useState('')
     const currentVersion = chrome.runtime.getManifest().version
+
     useEffect(() => {
         const remoteZipUrl = 'https://127.0.0.1:5500/mv3-react-ts-vite/mv3-react-ts-vite.zip'
-
         fetch(remoteZipUrl)
             .then((res) => res.blob())
             .then((zipFileBlob) => {
-                console.log('zipFileBlob', zipFileBlob)
                 setZipFileBlob(zipFileBlob)
 
                 getLatestVersion(zipFileBlob).then((latestVersion) => {
@@ -101,18 +100,66 @@ function App() {
             })
             .catch(e => console.error('下载安装包失败', e))
     }, [])
-    const updateVersion = useCallback(() => {
+
+    return {
+        zipFileBlob,
+        latestVersion,
+        currentVersion
+    }
+}
+
+// 检查更新
+export const useShowCheckUpdate = () => {
+    const { latestVersion, currentVersion } = useLatestVersion()
+    useEffect(() => {
+        if (latestVersion && currentVersion && latestVersion > currentVersion) {
+            chrome.windows.create({
+                url: 'src/entries/update-version/update-version.html',
+                type: 'popup',
+                width: 600,
+                height: 300,
+            })
+        } else {
+            console.log('不存在新版本')
+        }
+    }, [latestVersion, currentVersion])
+}
+
+function App() {
+    const [loading, setLoading] = useState(false)
+    const { zipFileBlob, latestVersion, currentVersion } = useLatestVersion()
+    const updateVersion = useCallback(async () => {
         if (zipFileBlob) {
-            extractZipFiles(zipFileBlob)
+            setLoading(true)
+            try {
+                await extractZipFiles(zipFileBlob)
+            } catch (e) {
+                console.log('更新失败', e)
+            } finally {
+                setLoading(false)
+            }
         }
     }, [zipFileBlob])
+    const viewInstallDirectory = useCallback(() => {
+        chrome.windows.create({
+            url: `chrome://extensions/?id=${chrome.runtime.id}`,
+            type: 'popup',
+        })
+    }, [])
 
-    return <div>
-        <h1>检查更新</h1>
-        {latestVersion > currentVersion && <button onClick={updateVersion}>选择当前 Chrome 插件所在文件夹进行更新</button>}
-        <div>当前版本：{currentVersion}</div>
-        <div>最新版本：{latestVersion}</div>
-    </div>
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ marginTop: 30 }}>当前版本：{currentVersion}</div>
+            <div>最新版本：{latestVersion}</div>
+            <button
+                onClick={updateVersion}
+                style={{ marginTop: 30 }}
+            >
+                选择 TFE 小助手插件所在文件夹（即加载来源）进行更新
+            </button>
+            <div style={{ marginTop: 30 }}>不知道插件所在文件夹（即加载来源）？<button onClick={viewInstallDirectory}>点我查看插件的加载来源</button></div>
+        </div>
+    )
 }
 
 export default App
